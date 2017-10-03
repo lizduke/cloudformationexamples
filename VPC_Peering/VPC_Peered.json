@@ -328,6 +328,48 @@
                 }
             }
         },
+        "PeeringRoute4StandardtoServicePublic": {
+            "Type": "AWS::EC2::Route",
+            "Properties": {
+                "DestinationCidrBlock": {
+                  "Ref": "ServiceVPCCIDR"
+                },
+                "RouteTableId": {
+                    "Ref": "PublicRouteTable"
+                },
+                "VpcPeeringConnectionId": {
+                    "Ref": "myVPCPeeringConnection"
+                }
+            }
+        },
+        "PeeringRoute5ServicePublictoStandard": {
+            "Type": "AWS::EC2::Route",
+            "Properties": {
+                "DestinationCidrBlock": {
+                  "Ref": "PublicSubnetCIDR"
+                },
+                "RouteTableId": {
+                    "Ref": "PublicRouteTableServiceVPC"
+                },
+                "VpcPeeringConnectionId": {
+                    "Ref": "myVPCPeeringConnection"
+                }
+            }
+        },
+        "PeeringRoute6ServicePublictoStandard": {
+            "Type": "AWS::EC2::Route",
+            "Properties": {
+                "DestinationCidrBlock": {
+                  "Ref": "PublicSubnetCIDR"
+                },
+                "RouteTableId": {
+                    "Ref": "PrivateRouteTableServiceVPC"
+                },
+                "VpcPeeringConnectionId": {
+                    "Ref": "myVPCPeeringConnection"
+                }
+            }
+        },
         "WebServerSecurityGroup": {
             "Type": "AWS::EC2::SecurityGroup",
             "Properties": {
