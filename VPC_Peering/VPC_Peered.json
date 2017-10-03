@@ -1,0 +1,443 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "Builds a VPC with an empty private subnet and a loadbalancer in a public subnet.",
+    "Parameters": {
+        "KeyName": {
+            "Description": "Name of an EC2 KeyPair to enable SSH access to the instance.",
+            "Type": "AWS::EC2::KeyPair::KeyName",
+            "ConstraintDescription": "must be the name of an existing EC2 KeyPair."
+        },
+        "SSHLocation": {
+            "Description": " The IP address range that can be used to access the web server using SSH.",
+            "Type": "String",
+            "MinLength": "9",
+            "MaxLength": "18",
+            "Default": "0.0.0.0/0",
+            "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+            "ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+        },
+        "VPCCIDRBlock": {
+            "Description": " The IP address range used by the VPC.",
+            "Type": "String",
+            "MinLength": "9",
+            "MaxLength": "18",
+            "Default": "10.0.0.0/22",
+            "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+            "ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+        },
+        "PublicSubnetCIDR": {
+            "Description": " Valid Subnet within the VPC CIDR Range to be used for Public Subnet",
+            "Type": "String",
+            "MinLength": "9",
+            "MaxLength": "18",
+            "Default": "10.0.2.0/24",
+            "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+            "ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+        },
+        "PrivateSubnetCIDR": {
+            "Description": " Valid Subnet within the VPC CIDR Range to be used for Private Subnet",
+            "Type": "String",
+            "MinLength": "9",
+            "MaxLength": "18",
+            "Default": "10.0.3.0/24",
+            "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+            "ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+        },
+        "MyServiceVPC": {
+            "Description": "VPC with some useful service tools",
+            "Type": "AWS::EC2::VPC::Id",
+            "Default": "vpc-12345678"
+        },
+        "ServiceVPCCIDR": {
+            "Description": "CIDR of VPC with some useful service tools",
+            "Type": "String",
+            "MinLength": "9",
+            "MaxLength": "18",
+            "Default": "172.16.32.0/22",
+            "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+            "ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+        },
+        "PrivateRouteTableServiceVPC": {
+            "Description": "Route Table for Private Subnet in Service VPC",
+            "Type": "String",
+            "Default": "rtb-12345678"
+        },
+        "PublicRouteTableServiceVPC": {
+            "Description": "Route Table for Public Subnet in Service VPC",
+            "Type": "String",
+            "Default": "rtb-12345679"
+        },
+        "AZ":{
+         "Description":"The AZ for Public and Private Subnets",
+         "Type":"AWS::EC2::AvailabilityZone::Name"
+       },
+        "InstanceType":{
+           "Description":"The EC2 instance type",
+           "Type":"String",
+           "Default":"t2.micro",
+           "AllowedValues":[
+              "t2.micro",
+              "t2.small",
+              "t2.medium",
+              "m3.medium",
+              "m3.large",
+              "m3.xlarge",
+              "m3.2xlarge",
+              "c3.large",
+              "c3.xlarge",
+              "c3.2xlarge",
+              "c3.4xlarge",
+              "c3.8xlarge",
+              "c4.large",
+              "c4.xlarge",
+              "c4.2xlarge",
+              "c4.4xlarge",
+              "c4.8xlarge",
+              "r3.large",
+              "r3.xlarge",
+              "r3.2xlarge",
+              "r3.4xlarge",
+              "r3.8xlarge",
+              "i2.xlarge",
+              "i2.2xlarge",
+              "i2.4xlarge",
+              "i2.8xlarge",
+              "d2.xlarge",
+              "d2.2xlarge",
+              "d2.4xlarge",
+              "d2.8xlarge",
+              "hi1.4xlarge",
+              "hs1.8xlarge",
+              "cr1.8xlarge",
+              "cc2.8xlarge"
+           ],
+           "ConstraintDescription":"must be a valid EC2 instance type."
+        }
+    },
+    "Mappings": {
+        "AWSRegionToAMI": {
+            "us-east-1": {
+                "AMIID": "ami-2b3b6041"
+            },
+            "us-west-2": {
+                "AMIID": "ami-ac6872cd"
+            },
+            "eu-west-1": {
+                "AMIID": "ami-03238b70"
+            },
+            "ap-northeast-1": {
+                "AMIID": "ami-fb2f1295"
+            },
+            "ap-southeast-2": {
+                "AMIID": "ami-43547120"
+            },
+            "us-west-1": {
+                "AMIID": "ami-bfe095df"
+            },
+            "ap-southeast-1": {
+                "AMIID": "ami-c78f43a4"
+            },
+            "eu-central-1": {
+                "AMIID": "ami-e1e6f88d"
+            }
+        }
+      },
+    "Resources": {
+        "StandardVPC": {
+            "Type": "AWS::EC2::VPC",
+            "Properties": {
+                "EnableDnsSupport": "true",
+                "EnableDnsHostnames": "true",
+                "CidrBlock": {
+                  "Ref": "VPCCIDRBlock"
+                }
+            }
+        },
+        "PublicSubnet": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "StandardVPC"
+                },
+                "AvailabilityZone":{
+                  "Ref":"AZ"
+                  },
+                "CidrBlock": {
+                  "Ref": "PublicSubnetCIDR"
+                }
+            }
+        },
+        "PrivateSubnet": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "StandardVPC"
+                },
+                "AvailabilityZone":{
+                  "Ref":"AZ"
+                  },
+                "CidrBlock": {
+                  "Ref": "PrivateSubnetCIDR"
+                }
+            }
+        },
+        "InternetGateway": {
+            "Type": "AWS::EC2::InternetGateway",
+            "Properties": {}
+        },
+        "EC2VPCG3S219": {
+            "Type": "AWS::EC2::VPCGatewayAttachment",
+            "Properties": {
+                "InternetGatewayId": {
+                    "Ref": "InternetGateway"
+                },
+                "VpcId": {
+                    "Ref": "StandardVPC"
+                }
+            }
+        },
+        "NATGateway": {
+            "Type": "AWS::EC2::NatGateway",
+            "Properties": {
+                "AllocationId": {
+                    "Fn::GetAtt": [
+                        "EIP",
+                        "AllocationId"
+                    ]
+                },
+                "SubnetId": {
+                    "Ref": "PublicSubnet"
+                }
+            },
+            "DependsOn": [
+                "PublicRouteTable"
+            ]
+        },
+        "EC2SRTAEMWH": {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+                "RouteTableId": {
+                    "Ref": "PrivateRouteTable"
+                },
+                "SubnetId": {
+                    "Ref": "PrivateSubnet"
+                }
+            }
+        },
+        "PublicRouteTable": {
+            "Type": "AWS::EC2::RouteTable",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "StandardVPC"
+                }
+            }
+        },
+        "PublicRoute": {
+            "Type": "AWS::EC2::Route",
+            "Properties": {
+                "DestinationCidrBlock": "0.0.0.0/0",
+                "RouteTableId": {
+                    "Ref": "PublicRouteTable"
+                },
+                "GatewayId": {
+                    "Ref": "InternetGateway"
+                }
+            }
+        },
+        "EC2SRTA2KB87": {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+                "RouteTableId": {
+                    "Ref": "PublicRouteTable"
+                },
+                "SubnetId": {
+                    "Ref": "PublicSubnet"
+                }
+            }
+        },
+        "PrivateRouteTable": {
+            "Type": "AWS::EC2::RouteTable",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "StandardVPC"
+                }
+            }
+        },
+        "PrivateRoute": {
+            "Type": "AWS::EC2::Route",
+            "Properties": {
+                "RouteTableId": {
+                    "Ref": "PrivateRouteTable"
+                },
+                "DestinationCidrBlock": "0.0.0.0/0",
+                "NatGatewayId": {
+                    "Ref": "NATGateway"
+                }
+            }
+        },
+        "myVPCPeeringConnection": {
+            "Type": "AWS::EC2::VPCPeeringConnection",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "StandardVPC"
+                },
+                "PeerVpcId": {
+                    "Ref": "MyServiceVPC"
+                }
+            }
+        },
+        "PeeringRoute1StandardtoServicePrivate": {
+            "Type": "AWS::EC2::Route",
+            "Properties": {
+                "DestinationCidrBlock": {
+                  "Ref": "ServiceVPCCIDR"
+                },
+                "RouteTableId": {
+                    "Ref": "PrivateRouteTable"
+                },
+                "VpcPeeringConnectionId": {
+                    "Ref": "myVPCPeeringConnection"
+                }
+            }
+        },
+        "PeeringRoute2ServicePrivatetoStandard": {
+            "Type": "AWS::EC2::Route",
+            "Properties": {
+                "DestinationCidrBlock": {
+                  "Ref": "PrivateSubnetCIDR"
+                },
+                "RouteTableId": {
+                    "Ref": "PrivateRouteTableServiceVPC"
+                },
+                "VpcPeeringConnectionId": {
+                    "Ref": "myVPCPeeringConnection"
+                }
+            }
+        },
+        "PeeringRoute3ServicePublictoStandard": {
+            "Type": "AWS::EC2::Route",
+            "Properties": {
+                "DestinationCidrBlock": {
+                  "Ref": "PrivateSubnetCIDR"
+                },
+                "RouteTableId": {
+                    "Ref": "PublicRouteTableServiceVPC"
+                },
+                "VpcPeeringConnectionId": {
+                    "Ref": "myVPCPeeringConnection"
+                }
+            }
+        },
+        "WebServerSecurityGroup": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "StandardVPC"
+                },
+                "GroupDescription": "Allow access from HTTP and SSH traffic",
+                "SecurityGroupIngress": [
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "80",
+                        "ToPort": "80",
+                        "SourceSecurityGroupId": {
+                            "Ref": "LoadBalancerSecurityGroup"
+                        }
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "22",
+                        "ToPort": "22",
+                        "CidrIp": {
+                            "Ref": "SSHLocation"
+                        }
+                    }
+                ],
+                "SecurityGroupEgress": [
+                  {
+                    "IpProtocol": "tcp",
+                    "FromPort": "0",
+                    "ToPort": "65535",
+                    "CidrIp": "0.0.0.0/0"
+                  }
+                ]
+            }
+        },
+        "EIP": {
+            "Type": "AWS::EC2::EIP",
+            "Properties": {
+                "Domain": "vpc"
+            }
+        },
+        "LoadBalancerSecurityGroup": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+                "GroupDescription": "Public Elastic Load Balancing security group with HTTP access on port 80 from the Internet",
+                "SecurityGroupIngress": [
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "80",
+                        "ToPort": "80",
+                        "CidrIp": "0.0.0.0/0"
+                    }
+                ],
+                "SecurityGroupEgress": [
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "0",
+                        "ToPort": "65535",
+                        "CidrIp": "0.0.0.0/0"
+                    }
+                ],
+                "VpcId": {
+                    "Ref": "StandardVPC"
+                }
+            }
+        },
+        "PublicELB": {
+            "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
+            "Properties": {
+                "Listeners": [
+                    {
+                        "LoadBalancerPort": "80",
+                        "InstancePort": "80",
+                        "Protocol": "HTTP"
+                    }
+                ],
+                "HealthCheck": {
+                    "Target": "HTTP:80/",
+                    "HealthyThreshold": "3",
+                    "UnhealthyThreshold": "5",
+                    "Interval": "90",
+                    "Timeout": "60"
+                },
+                "Subnets": [
+                    {
+                        "Ref": "PublicSubnet"
+                    }
+                ],
+                "SecurityGroups": [
+                    {
+                        "Ref": "LoadBalancerSecurityGroup"
+                    }
+                ]
+            }
+        }
+    },
+    "Outputs" : {
+      "StackVPC" : {
+        "Description" : "The ID of the VPC",
+        "Value" : { "Ref" : "StandardVPC" },
+        "Export" : {
+          "Name" : {"Fn::Sub": "${AWS::StackName}-VPCID" }
+          }
+        },
+        "PublicELB":{
+            "Description" : "The name of the public facing loadbalancer",
+            "Value" : { "Ref": "PublicELB"},
+            "Export" : {
+              "Name" : {"Fn::Sub": "${AWS::StackName}-PublicELB" }
+              }
+            }
+      }
+}
