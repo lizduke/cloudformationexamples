@@ -1,0 +1,66 @@
+{
+  "AWSTemplateFormatVersion":"2010-09-09",
+  "Description":"This Template creates an Amazon Cloudwatch Alert for Trusted Advisor open ports, protocols, IAM credentials not rotated in 90 days and must be created in us-east-1.",
+  "Parameters":{
+    "EmailAddress": {
+        "Description": "Email Address for sending SNS notifications for TrustedAdvisor",
+        "Type": "String"
+    }
+  },
+  "Resources":{
+    "TASNSTopic": {
+        "Type" : "AWS::SNS::Topic",
+        "Properties" : {
+          "DisplayName" : "TA_CWatch",
+          "TopicName" : "TrustedAdvisorAlert",
+          "Subscription": [
+              {
+                  "Endpoint": {
+                      "Ref": "EmailAddress"
+                  },
+                  "Protocol": "email"
+              }
+          ]
+        }
+      },
+      "TAEventsRule": {
+      "Type" : "AWS::Events::Rule",
+      "Properties" : {
+        "Description" : "Rule to log interesting security status from Trusted Advisor into Cloudwatch",
+        "EventPattern" : {
+            "source": [
+                "aws.trustedadvisor"
+              ],
+              "detail-type": [
+                "Trusted Advisor Check Item Refresh Notification"
+              ],
+              "detail": {
+                "status": [
+                  "ERROR"
+                ],
+                "check-name": [
+                  "Security Groups - Specific Ports Unrestricted",
+                  "Security Groups - Unrestricted Access",
+                  "ELB Listener Security",
+                  "ELB Security Groups",
+                  "Amazon RDS Security Group Access Risk",
+                  "Large Number of EC2 Security Group Rules Applied to an Instance",
+                  "Large Number of Rules in an EC2 Security Group",
+                  "IAM Access Key Rotation",
+                  "IAM Use",
+                  "Exposed Access Keys"
+                ]
+              }
+            },
+        "Name" : "TrustedAdvisorAlert",
+        "State" : "ENABLED",
+        "Targets" : [
+          {
+                  "Arn": { "Ref": "TASNSTopic" },
+                  "Id": "TrustedAdvisorAlert"
+                }
+        ]
+      }
+    }
+  }
+}
