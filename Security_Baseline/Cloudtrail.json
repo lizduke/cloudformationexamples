@@ -77,6 +77,7 @@
         "SnsTopicName" : {"Fn::GetAtt":["Topic","TopicName"]},
         "IsLogging" : true,
         "IncludeGlobalServiceEvents" : true,
+        "EnableLogFileValidation" : true,
         "IsMultiRegionTrail" : true,
         "EventSelectors": [
           {
