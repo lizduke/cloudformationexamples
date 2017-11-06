@@ -75,7 +75,26 @@
       "Properties" : {
         "S3BucketName" : {"Ref":"S3Bucket"},
         "SnsTopicName" : {"Fn::GetAtt":["Topic","TopicName"]},
-        "IsLogging" : true
+        "IsLogging" : true,
+        "IncludeGlobalServiceEvents" : true,
+        "IsMultiRegionTrail" : true,
+        "EventSelectors": [
+          {
+            "IncludeManagementEvents": false,
+            "DataResources": [
+              {
+                "Type" : "AWS::S3::Object",
+                "Values" : [ "arn:aws:s3:::" ]
+              }
+            ],
+            "ReadWriteType": "ReadOnly"
+          },
+          {
+            "IncludeManagementEvents": true,
+            "DataResources": [],
+            "ReadWriteType": "WriteOnly"
+          }
+        ]
       }
     }
   }
