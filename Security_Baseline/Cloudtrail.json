@@ -98,5 +98,15 @@
         ]
       }
     }
+  },
+  "Outputs" : {
+    "CloudtrailSNSTopic": {
+      "Description": "The Name of the Cloudtrail SNS Topic",
+      "Value" : { "Ref": "Topic"},
+    },
+    "CloudtrailName": {
+      "Description": "The Name of the trail created",
+      "Value" : { "Ref":"myTrail"}
+    }
   }
 }
