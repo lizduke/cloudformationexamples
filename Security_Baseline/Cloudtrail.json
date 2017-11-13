@@ -13,43 +13,47 @@
                 "RetentionInDays": 7
             }
         },
-        "CloudtrailLogStream": {
-            "Type": "AWS::Logs::LogStream",
-            "Properties": {
-              "LogGroupName": {
-                  "Ref": "CloudtrailLogGroup"
-                  }
-                }
-          },
         "CloudtrailServiceCreateLogStream": {
             "Type": "AWS::IAM::Role",
             "Properties": {
                 "Path": "/",
                 "AssumeRolePolicyDocument": "{\n    \"Statement\": [{\n        \"Effect\": \"Allow\",\n        \"Principal\": { \"Service\": [ \"cloudtrail.amazonaws.com\" ]},\n        \"Action\": [ \"sts:AssumeRole\" ]\n    }]\n}\n",
                 "Policies": [
-                    {
-                        "PolicyName": "root",
-                        "PolicyDocument": {
-                            "Version": "2012-10-17",
-                            "Statement": [
-                                {
-                                    "Resource": [
-                                        {
-                                            "Fn::Sub": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${CloudtrailLogGroup}:log-stream:${CloudtrailLogStream}"
-                                        }
-                                    ],
-                                    "Effect": "Allow",
-                                    "Action": [
-                                        "logs:CreateLogStream",
-                                        "logs:PutLogEvents"
-                                    ]
-                                }
-                            ]
-                        }
-                    }
-                ]
-            }
-        },
+                            {
+                              "PolicyName" : "Cloudtraillogs",
+                              "PolicyDocument": {
+                              "Version": "2012-10-17",
+                              "Statement": [
+                                      {
+                                        "Sid": "AWSCloudTrailCreateLogStream20141101",
+                                        "Effect": "Allow",
+                                        "Action": [
+                                                    "logs:CreateLogStream"
+                                                  ],
+                                        "Resource": [
+                                                      {
+                                                      "Fn::Sub": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${CloudtrailLogGroup}:log-stream:${AWS::AccountId}_CloudTrail_${AWS::Region}*"
+                                                      }
+                                                    ]
+                                      },
+                                      {
+                                        "Sid": "AWSCloudTrailPutLogEvents20141101",
+                                        "Effect": "Allow",
+                                        "Action": [
+                                                    "logs:PutLogEvents"
+                                                    ],
+                                        "Resource": [
+                                                      {
+                                                      "Fn::Sub": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${CloudtrailLogGroup}:log-stream:${AWS::AccountId}_CloudTrail_${AWS::Region}*"
+                                                      }
+                                                    ]
+                                                  }
+                                                ]
+                                              }
+                          }
+                        ]
+                      }
+                    },
         "S3Bucket": {
             "DeletionPolicy": "Retain",
             "Type": "AWS::S3::Bucket",
@@ -173,6 +177,12 @@
                 "IncludeGlobalServiceEvents": true,
                 "EnableLogFileValidation": true,
                 "IsMultiRegionTrail": true,
+                "CloudWatchLogsLogGroupArn":{
+                   "Fn::Sub": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${CloudtrailLogGroup}:*"
+                },
+                "CloudWatchLogsRoleArn": {
+                   "Fn::Sub": "arn:aws:iam::${AWS::AccountId}:role/${CloudtrailServiceCreateLogStream}"
+                },
                 "EventSelectors": [
                     {
                         "IncludeManagementEvents": false,
