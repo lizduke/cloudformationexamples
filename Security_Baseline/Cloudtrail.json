@@ -222,6 +222,22 @@
             "Description": "The Name of the Cloudtrail LogGroup created.",
             "Value": {
                 "Ref": "CloudtrailLogGroup"
+            },
+            "Export" : {
+            "Name" : "TCO-Security-TrailGroup"
+            }
+          },
+        "CloudtrailStack": {
+              "Description": "The Name of the Cloudtrail Stack created.",
+              "Value" : {"Fn::Sub": "${AWS::StackName}" },
+              "Export" : {
+              "Name" : "Cloudtrail-StackName"
+              }
+          },
+        "CloudtrailLogsIAMname": {
+            "Description": "The Name of the IAM role created for logs",
+            "Value": {
+                "Ref": "CloudtrailServiceCreateLogStream"
             }
         }
     }
