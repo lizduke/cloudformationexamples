@@ -383,13 +383,94 @@
         }
     },
     "Outputs": {
+        "SecurityGroupChangesAlarmArn": {
+            "Description": "The arn of the Sec Group Failure alarm",
+            "Value": {
+                "Fn::Sub": "arn:aws:cloudwatch:${AWS::Region}:${AWS::AccountId}:alarm:${SecurityGroupChangesAlarm}"
+            },
+            "Export" : {
+                        "Name" : "SecurityGroupChangesAlarmArn"
+                      }
+        },
+        "NetworkAclChangesAlarmArn": {
+            "Description": "The arn of the Network ACL changes alarm",
+            "Value": {
+                "Fn::Sub": "arn:aws:cloudwatch:${AWS::Region}:${AWS::AccountId}:alarm:${NetworkAclChangesAlarm}"
+            },
+            "Export" : {
+                        "Name" : "NetworkAclChangesAlarmArn"
+                      }
+        },
+        "GatewayChangesAlarmArn": {
+            "Description": "The arn of the Gateway changes alarm",
+            "Value": {
+                "Fn::Sub": "arn:aws:cloudwatch:${AWS::Region}:${AWS::AccountId}:alarm:${GatewayChangesAlarm}"
+            },
+            "Export" : {
+                        "Name" : "GatewayChangesAlarmArn"
+                      }
+        },
+        "VpcChangesAlarmArn": {
+            "Description": "The arn of changes to the VPC and peering alarm",
+            "Value": {
+                "Fn::Sub": "arn:aws:cloudwatch:${AWS::Region}:${AWS::AccountId}:alarm:${VpcChangesAlarm}"
+            },
+            "Export" : {
+                        "Name" : "VpcChangesAlarmArn"
+                      }
+        },
+        "EC2InstanceChangesAlarmArn": {
+            "Description": "The arn of the EC2 instance changes, stop, start, terminate alarm",
+            "Value": {
+                "Fn::Sub": "arn:aws:cloudwatch:${AWS::Region}:${AWS::AccountId}:alarm:${EC2InstanceChangesAlarm}"
+            },
+            "Export" : {
+                        "Name" : "EC2InstanceChangesAlarmArn"
+                      }
+        },
+        "EC2LargeInstanceChangesAlarmArn": {
+            "Description": "The arn of the 4x and 8x instance changes alarm",
+            "Value": {
+                "Fn::Sub": "arn:aws:cloudwatch:${AWS::Region}:${AWS::AccountId}:alarm:${EC2LargeInstanceChangesAlarm}"
+            },
+            "Export" : {
+                        "Name" : "EC2LargeInstanceChangesAlarmArn"
+                      }
+        },
+        "CloudTrailChangesAlarmArn": {
+            "Description": "The arn of the alarm for changes to trails including stopping and starting.",
+            "Value": {
+                "Fn::Sub": "arn:aws:cloudwatch:${AWS::Region}:${AWS::AccountId}:alarm:${CloudTrailChangesAlarm}"
+            },
+            "Export" : {
+                        "Name" : "CloudTrailChangesAlarmArn"
+                      }
+        },
+        "ConsoleSignInFailuresAlarmArn": {
+            "Description": "The arn of the unauthenticated calls to the console alarm",
+            "Value": {
+                "Fn::Sub": "arn:aws:cloudwatch:${AWS::Region}:${AWS::AccountId}:alarm:${ConsoleSignInFailuresAlarm}"
+            },
+            "Export" : {
+                        "Name" : "ConsoleSignInFailuresAlarmArn"
+                      }
+        },
         "AuthorizationFailuresAlarmArn": {
-            "Description": "The arn of the Auth failure alarm",
+            "Description": "The arn of the unathenticated api calls alarm",
             "Value": {
                 "Fn::Sub": "arn:aws:cloudwatch:${AWS::Region}:${AWS::AccountId}:alarm:${AuthorizationFailuresAlarm}"
             },
             "Export" : {
                         "Name" : "AuthorizationFailuresAlarmArn"
+                      }
+        },
+        "IAMPolicyChangesAlarmArn": {
+            "Description": "The arn of the changes to IAM policies alarm",
+            "Value": {
+                "Fn::Sub": "arn:aws:cloudwatch:${AWS::Region}:${AWS::AccountId}:alarm:${IAMPolicyChangesAlarm}"
+            },
+            "Export" : {
+                        "Name" : "IAMPolicyChangesAlarmArn"
                       }
         }
 }
