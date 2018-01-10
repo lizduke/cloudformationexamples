@@ -1,27 +1,67 @@
 {
   "AWSTemplateFormatVersion" : "2010-09-09",
-  "Description" : "AWS CloudTrail API Activity Alarm Template for CloudWatch Logs",
+  "Description" : "CloudWatch Dashboard Showing Security Alarms",
   "Resources" : {
     "DashboardSideBySide": {
         "Type": "AWS::CloudWatch::Dashboard",
         "Properties": {
-            "DashboardName": "LizTest2Dashboard",
+            "DashboardName": "SecurityDashboard",
             "DashboardBody": {
                         "Fn::Join": [
                           "",
                         [
-                        "{\"widgets\":[{\"type\":\"metric\",\"x\":12,\"y\":0,\"width\":6,\"height\":6,\"properties\":{\"title\":\"CloudTrailAuthorizationFailures\",\"annotations\":{\"alarms\":[\"",
+                        "{\"widgets\":[{\"type\":\"metric\",\"x\":0,\"y\":0,\"width\":6,\"height\":6,\"properties\":{\"title\":\"CloudTrailSecurityGroupChanges\",\"annotations\":{\"alarms\":[\"",
                           {
-                            "Fn::ImportValue" : "AuthorizationFailuresAlarmArn"
+                            "Fn::ImportValue" : "SecurityGroupChangesAlarmArn"
                           },
                             "\"]},\"view\":\"timeSeries\",\"stacked\":false}},",
-                                "{\"type\":\"metric\",\"x\":0,\"y\":0,\"width\":6,\"height\":6,\"properties\":{\"title\":\"CloudTrailNetworkAclChanges\",\"annotations\":{\"alarms\":[\"",
-                                  {
-                                    "Fn::ImportValue" : "CloudTrailChangesAlarmArn"
-                                  },
-                                  "\"]},\"view\":\"timeSeries\",\"stacked\":false}}]}"
-                                ]
-                              ]
+                        "{\"type\":\"metric\",\"x\":6,\"y\":0,\"width\":6,\"height\":6,\"properties\":{\"title\":\"NetworkACLChangesAlarm\",\"annotations\":{\"alarms\":[\"",
+                        {
+                          "Fn::ImportValue" : "NetworkAclChangesAlarmArn"
+                        },
+                        "\"]},\"view\":\"timeSeries\",\"stacked\":false}},",
+                        "{\"type\":\"metric\",\"x\":12,\"y\":0,\"width\":6,\"height\":6,\"properties\":{\"title\":\"GatewayChangesAlarm\",\"annotations\":{\"alarms\":[\"",
+                        {
+                          "Fn::ImportValue" : "GatewayChangesAlarmArn"
+                        },
+                        "\"]},\"view\":\"timeSeries\",\"stacked\":false}},",
+                        "{\"type\":\"metric\",\"x\":0,\"y\":6,\"width\":6,\"height\":6,\"properties\":{\"title\":\"VPCChangesAlarm\",\"annotations\":{\"alarms\":[\"",
+                        {
+                          "Fn::ImportValue" : "VpcChangesAlarmArn"
+                        },
+                        "\"]},\"view\":\"timeSeries\",\"stacked\":false}},",
+                        "{\"type\":\"metric\",\"x\":6,\"y\":6,\"width\":6,\"height\":6,\"properties\":{\"title\":\"EC2InstanceChangesAlarm\",\"annotations\":{\"alarms\":[\"",
+                        {
+                          "Fn::ImportValue" : "EC2InstanceChangesAlarmArn"
+                        },
+                        "\"]},\"view\":\"timeSeries\",\"stacked\":false}},",
+                        "{\"type\":\"metric\",\"x\":12,\"y\":6,\"width\":6,\"height\":6,\"properties\":{\"title\":\"EC2LargeInstanceChangesAlarm\",\"annotations\":{\"alarms\":[\"",
+                        {
+                          "Fn::ImportValue" : "EC2LargeInstanceChangesAlarmArn"
+                        },
+                        "\"]},\"view\":\"timeSeries\",\"stacked\":false}},",
+                        "{\"type\":\"metric\",\"x\":0,\"y\":12,\"width\":6,\"height\":6,\"properties\":{\"title\":\"CloudTrailChangesAlarm\",\"annotations\":{\"alarms\":[\"",
+                        {
+                          "Fn::ImportValue" : "CloudTrailChangesAlarmArn"
+                        },
+                        "\"]},\"view\":\"timeSeries\",\"stacked\":false}},",
+                        "{\"type\":\"metric\",\"x\":6,\"y\":12,\"width\":6,\"height\":6,\"properties\":{\"title\":\"ConsoleSignInFailuresAlarm\",\"annotations\":{\"alarms\":[\"",
+                        {
+                          "Fn::ImportValue" : "ConsoleSignInFailuresAlarmArn"
+                        },
+                        "\"]},\"view\":\"timeSeries\",\"stacked\":false}},",
+                        "{\"type\":\"metric\",\"x\":12,\"y\":12,\"width\":6,\"height\":6,\"properties\":{\"title\":\"AuthorizationFailuresAlarm\",\"annotations\":{\"alarms\":[\"",
+                        {
+                          "Fn::ImportValue" : "AuthorizationFailuresAlarmArn"
+                        },
+                        "\"]},\"view\":\"timeSeries\",\"stacked\":false}},",
+                        "{\"type\":\"metric\",\"x\":0,\"y\":18,\"width\":6,\"height\":6,\"properties\":{\"title\":\"IAMPolicyChangesAlarm\",\"annotations\":{\"alarms\":[\"",
+                        {
+                          "Fn::ImportValue" : "IAMPolicyChangesAlarmArn"
+                        },
+                        "\"]},\"view\":\"timeSeries\",\"stacked\":false}}]}"
+                        ]
+                      ]
                 }
     }
   }
