@@ -7,18 +7,23 @@
         "Properties": {
             "DashboardName": "LizTest2Dashboard",
             "DashboardBody": {
-            "Fn::Join": [
-              "",
-            [
-            "{\"widgets\":[{\"type\":\"metric\",\"x\":12,\"y\":0,\"width\":6,\"height\":6,\"properties\":{\"title\":\"CloudTrailAuthorizationFailures\",\"annotations\":{\"alarms\":[\"",
-              {
-                "Fn::ImportValue" : "AuthorizationFailuresAlarmArn"
-              },
-                "\"]},\"view\":\"timeSeries\",\"stacked\":false}}]}"
-    ]
-    ]
+                        "Fn::Join": [
+                          "",
+                        [
+                        "{\"widgets\":[{\"type\":\"metric\",\"x\":12,\"y\":0,\"width\":6,\"height\":6,\"properties\":{\"title\":\"CloudTrailAuthorizationFailures\",\"annotations\":{\"alarms\":[\"",
+                          {
+                            "Fn::ImportValue" : "AuthorizationFailuresAlarmArn"
+                          },
+                            "\"]},\"view\":\"timeSeries\",\"stacked\":false}},",
+                                "{\"type\":\"metric\",\"x\":0,\"y\":0,\"width\":6,\"height\":6,\"properties\":{\"title\":\"CloudTrailNetworkAclChanges\",\"annotations\":{\"alarms\":[\"",
+                                  {
+                                    "Fn::ImportValue" : "CloudTrailChangesAlarmArn"
+                                  },
+                                  "\"]},\"view\":\"timeSeries\",\"stacked\":false}}]}"
+                                ]
+                              ]
+                }
     }
   }
-}
 }
 }
