@@ -1,7 +1,5 @@
 # SecurityBaseline
-Templates for various scenarios
-
-This repository will have cloudformation templates for different functions that I have found useful.
+This is to enable an automated Security Baseline to be configured for a new or existing AWS account.
 
 The templates are designed to be used as a starting point for your own templates.
 
