@@ -44,8 +44,6 @@
                   "ELB Listener Security",
                   "ELB Security Groups",
                   "Amazon RDS Security Group Access Risk",
-                  "Large Number of EC2 Security Group Rules Applied to an Instance",
-                  "Large Number of Rules in an EC2 Security Group",
                   "IAM Access Key Rotation",
                   "IAM Use",
                   "Exposed Access Keys"
