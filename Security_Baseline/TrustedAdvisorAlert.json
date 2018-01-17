@@ -46,6 +46,7 @@
                   "Amazon RDS Security Group Access Risk",
                   "IAM Access Key Rotation",
                   "IAM Use",
+                  "Amazon S3 Bucket Permissions",
                   "Exposed Access Keys"
                 ]
               }
