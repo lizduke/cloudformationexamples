@@ -1,0 +1,166 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+  "Description" : "RDS Database for Wordpress",
+  "Parameters" : {
+                "DBInstanceName": {
+                  "Description": "Master DB Instance Name",
+                  "Type": "String",
+                  "Default": "wordpress-db",
+                  "ConstraintDescription": "Must begin with a letter; must contain only ASCII letters, digits, and hyphens; and must not end with a hyphen or contain two consecutive hyphens"
+                },
+                "DBUser": {
+                    "Description": "Master DB Username",
+                    "Type": "String",
+                    "Default": "WPDB_Admin"
+                },
+                "DBPassword": {
+                    "Description": "Master Password for Database",
+                    "Type": "String",
+                    "NoEcho": "true",
+                    "MinLength": "8",
+                    "MaxLength": "24",
+                    "AllowedPattern": "[a-zA-Z0-9]+",
+                    "ConstraintDescription": "must be between 8 and 24 alphanumeric characters."
+                },
+                "DBName": {
+                    "Description": "Friendly Name for Database",
+                    "Type": "String",
+                    "Default": "WordPress_DB",
+                    "MinLength": "6",
+                    "MaxLength": "24",
+                },
+                "MultiAZDatabase": {
+                            "AllowedValues": [
+                                "true",
+                                "false"
+                            ],
+                            "Default": "false",
+                            "Description": "To Enable the RDS Database to be multi-AZ, set this parameter to True",
+                            "Type": "String",
+                            "ConstraintDescription": "must be either true or false"
+                          },
+                "DBAllocatedStorage": {
+                              "Default": "5",
+                              "Description": "The size of the database (Gb)",
+                              "Type": "Number",
+                              "MinValue": "5",
+                              "MaxValue": "1024",
+                              "ConstraintDescription": "must be between 5 and 1024Gb."
+                          },
+              "DBStorageEncryption": {
+                                  "AllowedValues": [
+                                          "true",
+                                          "false"
+                                      ],
+                                  "Default": "true",
+                                  "Description": "To use encrypted storage, set this parameter to true, this is strongly recommended",
+                                  "Type": "String",
+                                  "ConstraintDescription": "must be either true or false"
+                                    },
+               "MySQLVersion": {
+                                    "AllowedValues": [
+                                                      "5.5",
+                                                      "5.6",
+                                                      "5.7"
+                                                            ],
+                                    "Default": "5.5",
+                                    "Description": "Select which major MySQL Version you want to use",
+                                    "Type": "String",
+                                    "ConstraintDescription": "must be 5.5, 5.6 or 5.7"
+                                    },
+                "DBInstanceClass": {
+                              "Description": "The database instance type",
+                              "Type": "String",
+                              "Default": "db.t2.small",
+                              "AllowedValues": [
+                                  "db.t1.micro",
+                                  "db.m1.small",
+                                  "db.m1.medium",
+                                  "db.m1.large",
+                                  "db.m1.xlarge",
+                                  "db.m2.xlarge",
+                                  "db.m2.2xlarge",
+                                  "db.m2.4xlarge",
+                                  "db.m3.medium",
+                                  "db.m3.large",
+                                  "db.m3.xlarge",
+                                  "db.m3.2xlarge",
+                                  "db.m4.large",
+                                  "db.m4.xlarge",
+                                  "db.m4.2xlarge",
+                                  "db.m4.4xlarge",
+                                  "db.m4.10xlarge",
+                                  "db.r3.large",
+                                  "db.r3.xlarge",
+                                  "db.r3.2xlarge",
+                                  "db.r3.4xlarge",
+                                  "db.r3.8xlarge",
+                                  "db.m2.xlarge",
+                                  "db.m2.2xlarge",
+                                  "db.m2.4xlarge",
+                                  "db.cr1.8xlarge",
+                                  "db.t2.micro",
+                                  "db.t2.small",
+                                  "db.t2.medium",
+                                  "db.t2.large"
+                              ],
+                              "ConstraintDescription": "must select a valid database instance type."
+                          },
+              "WordPressSecurityGroup": {
+                              "Description": "Please select 1 security group that is applied to instances that require access to the database.",
+                              "Type" : "List<AWS::EC2::SecurityGroup::Id>",
+                              "ConstraintDescription": "must be in the same VPC as the DB instance subnets."
+                            },
+              "WordPressVPC": {
+                              "Description": "The VPC that the EC2 Security Group belongs to.",
+                              "Type": "AWS::EC2::VPC::Id",
+                              "Default": "vpc-168ef972"
+                          },
+              "DBSubnets" : {
+                            "Description" : "Subnet IDs for your database",
+                            "Type" : "List<AWS::EC2::Subnet::Id>",
+                            "ConstraintDescription": "must select a minimum of 2 subnets even if not multi-AZ."
+                            }
+                        },
+            "Resources": {
+                    "MyDBSubnetGroup" : {
+                                  "Type" : "AWS::RDS::DBSubnetGroup",
+                                  "Properties" : {
+                                  "DBSubnetGroupDescription" : "Subnets available for the RDS DB Instance",
+                                  "SubnetIds" : { "Ref" : "DBSubnets" }
+                                  }
+                                },
+                      "DBEC2SecurityGroup": {
+                                    "Type": "AWS::EC2::SecurityGroup",
+                                    "Properties" : {
+                                    "VpcId": { "Ref": "WordPressVPC"},
+                                    "GroupDescription": "Open database for access by Wordpress",
+                                    "SecurityGroupIngress" : [{
+                                    "IpProtocol" : "tcp",
+                                    "FromPort" : "3306",
+                                    "ToPort" : "3306",
+                                    "SourceSecurityGroupId" : { "Fn::Join": [",", {"Ref" : "WordPressSecurityGroup"}]}
+                                      }]
+                                      }
+                      },
+                      "DBInstance" : {
+                                    "Type": "AWS::RDS::DBInstance",
+                                    "Properties": {
+                                    "DBInstanceIdentifier": { "Ref" : "DBInstanceName"},
+                                    "DBName"            : { "Ref" : "DBName" },
+                                    "Engine"            : "MySQL",
+                                    "EngineVersion"     : { "Ref" : "MySQLVersion" },
+                                    "MultiAZ"           : { "Ref": "MultiAZDatabase" },
+                                    "MasterUsername"    : { "Ref" : "DBUser" },
+                                    "DBInstanceClass"   : { "Ref" : "DBInstanceClass" },
+                                    "DBSubnetGroupName" : { "Ref" : "MyDBSubnetGroup"},
+                                    "AllocatedStorage"  : { "Ref" : "DBAllocatedStorage" },
+                                    "StorageEncrypted"  : { "Ref" : "DBStorageEncryption" },
+                                    "MasterUserPassword": { "Ref" : "DBPassword" },
+                                    "VPCSecurityGroups" : [ { "Fn::GetAtt": [ "DBEC2SecurityGroup", "GroupId" ] } ],
+                                    "Tags" : [ { "Key" : "Name", "Value" : "WordPress Database" } ]
+                                    },
+                                    "DeletionPolicy" : "Snapshot"
+                                    }
+                    },
+}
