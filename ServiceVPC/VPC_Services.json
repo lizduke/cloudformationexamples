@@ -78,7 +78,8 @@
                   },
                 "CidrBlock": {
                   "Ref": "PublicSubnetCIDR1"
-                }
+                },
+                "Tags" : [ { "Key" : "Name", "Value" : "Public" } ]
             }
         },
         "PublicSubnet2": {
@@ -92,7 +93,8 @@
                   },
                 "CidrBlock": {
                   "Ref": "PublicSubnetCIDR2"
-                }
+                },
+                "Tags" : [ { "Key" : "Name", "Value" : "Public" } ]
             }
         },
         "PrivateSubnet1": {
@@ -106,7 +108,8 @@
                   },
                 "CidrBlock": {
                   "Ref": "PrivateSubnetCIDR1"
-                }
+                },
+                "Tags" : [ { "Key" : "Name", "Value" : "Private" } ]
             }
         },
         "PrivateSubnet2": {
@@ -120,7 +123,8 @@
                   },
                 "CidrBlock": {
                   "Ref": "PrivateSubnetCIDR2"
-                }
+                },
+                "Tags" : [ { "Key" : "Name", "Value" : "Private" } ]
             }
         },
         "InternetGateway": {
@@ -184,7 +188,7 @@
                 "Domain": "vpc"
             }
         },
-        "EC2SRTAEMWH": {
+        "RTAPriSub1": {
             "Type": "AWS::EC2::SubnetRouteTableAssociation",
             "Properties": {
                 "RouteTableId": {
@@ -195,12 +199,24 @@
                 }
             }
         },
+        "RTAPriSub2": {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+                "RouteTableId": {
+                    "Ref": "PrivateRouteTableAZ2"
+                },
+                "SubnetId": {
+                    "Ref": "PrivateSubnet2"
+                }
+            }
+        },
         "PublicRouteTableAZ1": {
             "Type": "AWS::EC2::RouteTable",
             "Properties": {
                 "VpcId": {
                     "Ref": "StandardVPC"
-                }
+                },
+                "Tags" : [ { "Key" : "Name", "Value" : "Public" } ]
             }
         },
         "PublicRouteTableAZ2": {
@@ -208,7 +224,8 @@
             "Properties": {
                 "VpcId": {
                     "Ref": "StandardVPC"
-                }
+                },
+                "Tags" : [ { "Key" : "Name", "Value" : "Public" } ]
             }
         },
         "PublicRouteAZ1": {
@@ -235,7 +252,7 @@
                 }
             }
         },
-        "RTAPSub1": {
+        "RTAPubSub1": {
             "Type": "AWS::EC2::SubnetRouteTableAssociation",
             "Properties": {
                 "RouteTableId": {
@@ -246,7 +263,7 @@
                 }
             }
         },
-        "RTAPSub2": {
+        "RTAPubSub2": {
             "Type": "AWS::EC2::SubnetRouteTableAssociation",
             "Properties": {
                 "RouteTableId": {
@@ -262,7 +279,8 @@
             "Properties": {
                 "VpcId": {
                     "Ref": "StandardVPC"
-                }
+                },
+                "Tags" : [ { "Key" : "Name", "Value" : "Private" } ]
             }
         },
         "PrivateRouteTableAZ2": {
@@ -270,7 +288,8 @@
             "Properties": {
                 "VpcId": {
                     "Ref": "StandardVPC"
-                }
+                },
+                "Tags" : [ { "Key" : "Name", "Value" : "Private" } ]
             }
         },
         "PrivateRouteAZ1": {
