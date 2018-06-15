@@ -54,7 +54,12 @@
          "AZ2":{
           "Description":"The AZ for Public2 and Private2 Subnets",
           "Type":"AWS::EC2::AvailabilityZone::Name"
-        }
+        },
+        "DomainName": {
+            "Description": " Valid DomainName to be used for DhcpOptions Set",
+            "Type": "String",
+            "Default": "example.com"
+          }
       },
     "Resources": {
         "StandardVPC": {
@@ -315,7 +320,24 @@
                   "Ref": "NATGatewayAZ2"
               }
           }
-      }
+      },
+      "DhcpOptions" : {
+         "Type" : "AWS::EC2::DHCPOptions",
+         "Properties" : {
+            "DomainName" : {
+                "Ref": "DomainName"
+            },
+            "DomainNameServers" : [ "AmazonProvidedDNS" ],
+            "Tags" : [ { "Key" : "Name", "Value" : "Domain" } ]
+         }
+       },
+  "VPCDHCPOptionsAssociation" : {
+  "Type" : "AWS::EC2::VPCDHCPOptionsAssociation",
+  "Properties" : {
+    "VpcId" : {"Ref" : "StandardVPC"},
+    "DhcpOptionsId" : {"Ref" : "DhcpOptions"}
+  }
+}
     },
     "Outputs" : {
       "StackVPC" : {
