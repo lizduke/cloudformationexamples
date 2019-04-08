@@ -1,0 +1,351 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "Builds a VPC with empty Public and Private Subnets.",
+    "Parameters": {
+        "VPCCIDRBlock": {
+            "Description": " The IP address range used by the VPC.",
+            "Type": "String",
+            "MinLength": "9",
+            "MaxLength": "18",
+            "Default": "10.0.8.0/22",
+            "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+            "ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+        },
+        "PublicSubnetCIDR1": {
+            "Description": " Valid Subnet within the VPC CIDR Range to be used for Public Subnet",
+            "Type": "String",
+            "MinLength": "9",
+            "MaxLength": "18",
+            "Default": "10.0.8.0/24",
+            "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+            "ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+        },
+        "PublicSubnetCIDR2": {
+            "Description": " Valid Subnet within the VPC CIDR Range to be used for Public Subnet",
+            "Type": "String",
+            "MinLength": "9",
+            "MaxLength": "18",
+            "Default": "10.0.9.0/24",
+            "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+            "ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+        },
+        "PrivateSubnetCIDR1": {
+            "Description": " Valid Subnet within the VPC CIDR Range to be used for Private Subnet",
+            "Type": "String",
+            "MinLength": "9",
+            "MaxLength": "18",
+            "Default": "10.0.10.0/24",
+            "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+            "ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+        },
+        "PrivateSubnetCIDR2": {
+            "Description": " Valid Subnet within the VPC CIDR Range to be used for Private Subnet",
+            "Type": "String",
+            "MinLength": "9",
+            "MaxLength": "18",
+            "Default": "10.0.11.0/24",
+            "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+            "ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+        },
+        "AZ1":{
+         "Description":"The AZ for Public1 and Private1 Subnets",
+         "Type":"AWS::EC2::AvailabilityZone::Name"
+        },
+         "AZ2":{
+          "Description":"The AZ for Public2 and Private2 Subnets",
+          "Type":"AWS::EC2::AvailabilityZone::Name"
+        },
+        "DomainName": {
+            "Description": " Valid DomainName to be used for DhcpOptions Set",
+            "Type": "String",
+            "Default": "example.com"
+          }
+      },
+    "Resources": {
+        "StandardVPC": {
+            "Type": "AWS::EC2::VPC",
+            "Properties": {
+                "EnableDnsSupport": "true",
+                "EnableDnsHostnames": "true",
+                "CidrBlock": {
+                  "Ref": "VPCCIDRBlock"
+                }
+            }
+        },
+        "PublicSubnet1": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "StandardVPC"
+                },
+                "AvailabilityZone":{
+                  "Ref":"AZ1"
+                  },
+                "CidrBlock": {
+                  "Ref": "PublicSubnetCIDR1"
+                },
+                "Tags" : [ { "Key" : "Name", "Value" : "Public" } ]
+            }
+        },
+        "PublicSubnet2": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "StandardVPC"
+                },
+                "AvailabilityZone":{
+                  "Ref":"AZ2"
+                  },
+                "CidrBlock": {
+                  "Ref": "PublicSubnetCIDR2"
+                },
+                "Tags" : [ { "Key" : "Name", "Value" : "Public" } ]
+            }
+        },
+        "PrivateSubnet1": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "StandardVPC"
+                },
+                "AvailabilityZone":{
+                  "Ref":"AZ1"
+                  },
+                "CidrBlock": {
+                  "Ref": "PrivateSubnetCIDR1"
+                },
+                "Tags" : [ { "Key" : "Name", "Value" : "Private" } ]
+            }
+        },
+        "PrivateSubnet2": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "StandardVPC"
+                },
+                "AvailabilityZone":{
+                  "Ref":"AZ2"
+                  },
+                "CidrBlock": {
+                  "Ref": "PrivateSubnetCIDR2"
+                },
+                "Tags" : [ { "Key" : "Name", "Value" : "Private" } ]
+            }
+        },
+        "InternetGateway": {
+            "Type": "AWS::EC2::InternetGateway",
+            "Properties": {}
+        },
+        "EC2VPCG3S219": {
+            "Type": "AWS::EC2::VPCGatewayAttachment",
+            "Properties": {
+                "InternetGatewayId": {
+                    "Ref": "InternetGateway"
+                },
+                "VpcId": {
+                    "Ref": "StandardVPC"
+                }
+            }
+        },
+        "NATGatewayAZ1": {
+            "Type": "AWS::EC2::NatGateway",
+            "Properties": {
+                "AllocationId": {
+                    "Fn::GetAtt": [
+                        "EIP1",
+                        "AllocationId"
+                    ]
+                },
+                "SubnetId": {
+                    "Ref": "PublicSubnet1"
+                }
+            },
+            "DependsOn": [
+                "PublicRouteTableAZ1"
+            ]
+        },
+        "EIP1": {
+            "Type": "AWS::EC2::EIP",
+            "Properties": {
+                "Domain": "vpc"
+            }
+        },
+        "NATGatewayAZ2": {
+            "Type": "AWS::EC2::NatGateway",
+            "Properties": {
+                "AllocationId": {
+                    "Fn::GetAtt": [
+                        "EIP2",
+                        "AllocationId"
+                    ]
+                },
+                "SubnetId": {
+                    "Ref": "PublicSubnet2"
+                }
+            },
+            "DependsOn": [
+                "PublicRouteTableAZ2"
+            ]
+        },
+        "EIP2": {
+            "Type": "AWS::EC2::EIP",
+            "Properties": {
+                "Domain": "vpc"
+            }
+        },
+        "RTAPriSub1": {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+                "RouteTableId": {
+                    "Ref": "PrivateRouteTableAZ1"
+                },
+                "SubnetId": {
+                    "Ref": "PrivateSubnet1"
+                }
+            }
+        },
+        "RTAPriSub2": {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+                "RouteTableId": {
+                    "Ref": "PrivateRouteTableAZ2"
+                },
+                "SubnetId": {
+                    "Ref": "PrivateSubnet2"
+                }
+            }
+        },
+        "PublicRouteTableAZ1": {
+            "Type": "AWS::EC2::RouteTable",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "StandardVPC"
+                },
+                "Tags" : [ { "Key" : "Name", "Value" : "Public" } ]
+            }
+        },
+        "PublicRouteTableAZ2": {
+            "Type": "AWS::EC2::RouteTable",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "StandardVPC"
+                },
+                "Tags" : [ { "Key" : "Name", "Value" : "Public" } ]
+            }
+        },
+        "PublicRouteAZ1": {
+            "Type": "AWS::EC2::Route",
+            "Properties": {
+                "DestinationCidrBlock": "0.0.0.0/0",
+                "RouteTableId": {
+                    "Ref": "PublicRouteTableAZ1"
+                },
+                "GatewayId": {
+                    "Ref": "InternetGateway"
+                }
+            }
+        },
+        "PublicRouteAZ2": {
+            "Type": "AWS::EC2::Route",
+            "Properties": {
+                "DestinationCidrBlock": "0.0.0.0/0",
+                "RouteTableId": {
+                    "Ref": "PublicRouteTableAZ2"
+                },
+                "GatewayId": {
+                    "Ref": "InternetGateway"
+                }
+            }
+        },
+        "RTAPubSub1": {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+                "RouteTableId": {
+                    "Ref": "PublicRouteTableAZ1"
+                },
+                "SubnetId": {
+                    "Ref": "PublicSubnet1"
+                }
+            }
+        },
+        "RTAPubSub2": {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+                "RouteTableId": {
+                    "Ref": "PublicRouteTableAZ2"
+                },
+                "SubnetId": {
+                    "Ref": "PublicSubnet2"
+                }
+            }
+        },
+        "PrivateRouteTableAZ1": {
+            "Type": "AWS::EC2::RouteTable",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "StandardVPC"
+                },
+                "Tags" : [ { "Key" : "Name", "Value" : "Private" } ]
+            }
+        },
+        "PrivateRouteTableAZ2": {
+            "Type": "AWS::EC2::RouteTable",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "StandardVPC"
+                },
+                "Tags" : [ { "Key" : "Name", "Value" : "Private" } ]
+            }
+        },
+        "PrivateRouteAZ1": {
+            "Type": "AWS::EC2::Route",
+            "Properties": {
+                "RouteTableId": {
+                    "Ref": "PrivateRouteTableAZ1"
+                },
+                "DestinationCidrBlock": "0.0.0.0/0",
+                "NatGatewayId": {
+                    "Ref": "NATGatewayAZ1"
+                }
+            }
+        },
+      "PrivateRouteAZ2": {
+          "Type": "AWS::EC2::Route",
+          "Properties": {
+              "RouteTableId": {
+                  "Ref": "PrivateRouteTableAZ2"
+              },
+              "DestinationCidrBlock": "0.0.0.0/0",
+              "NatGatewayId": {
+                  "Ref": "NATGatewayAZ2"
+              }
+          }
+      },
+      "DhcpOptions" : {
+         "Type" : "AWS::EC2::DHCPOptions",
+         "Properties" : {
+            "DomainName" : {
+                "Ref": "DomainName"
+            },
+            "DomainNameServers" : [ "AmazonProvidedDNS" ],
+            "Tags" : [ { "Key" : "Name", "Value" : "Domain" } ]
+         }
+       },
+  "VPCDHCPOptionsAssociation" : {
+  "Type" : "AWS::EC2::VPCDHCPOptionsAssociation",
+  "Properties" : {
+    "VpcId" : {"Ref" : "StandardVPC"},
+    "DhcpOptionsId" : {"Ref" : "DhcpOptions"}
+  }
+}
+    },
+    "Outputs" : {
+      "StackVPC" : {
+        "Description" : "The ID of the VPC",
+        "Value" : { "Ref" : "StandardVPC" },
+        "Export" : {
+          "Name" : {"Fn::Sub": "${AWS::StackName}-VPCID" }
+          }
+        }
+      }
+}
