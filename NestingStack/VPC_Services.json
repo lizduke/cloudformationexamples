@@ -161,7 +161,7 @@
                 }
             },
             "DependsOn": [
-                "PublicRouteTableAZ1"
+                "PublicRouteTable"
             ]
         },
         "EIP1": {
@@ -184,7 +184,7 @@
                 }
             },
             "DependsOn": [
-                "PublicRouteTableAZ2"
+                "PublicRouteTable"
             ]
         },
         "EIP2": {
@@ -215,7 +215,7 @@
                 }
             }
         },
-        "PublicRouteTableAZ1": {
+        "PublicRouteTable": {
             "Type": "AWS::EC2::RouteTable",
             "Properties": {
                 "VpcId": {
@@ -224,33 +224,12 @@
                 "Tags" : [ { "Key" : "Name", "Value" : "Public" } ]
             }
         },
-        "PublicRouteTableAZ2": {
-            "Type": "AWS::EC2::RouteTable",
-            "Properties": {
-                "VpcId": {
-                    "Ref": "StandardVPC"
-                },
-                "Tags" : [ { "Key" : "Name", "Value" : "Public" } ]
-            }
-        },
-        "PublicRouteAZ1": {
+        "PublicRoute": {
             "Type": "AWS::EC2::Route",
             "Properties": {
                 "DestinationCidrBlock": "0.0.0.0/0",
                 "RouteTableId": {
-                    "Ref": "PublicRouteTableAZ1"
-                },
-                "GatewayId": {
-                    "Ref": "InternetGateway"
-                }
-            }
-        },
-        "PublicRouteAZ2": {
-            "Type": "AWS::EC2::Route",
-            "Properties": {
-                "DestinationCidrBlock": "0.0.0.0/0",
-                "RouteTableId": {
-                    "Ref": "PublicRouteTableAZ2"
+                    "Ref": "PublicRouteTable"
                 },
                 "GatewayId": {
                     "Ref": "InternetGateway"
@@ -261,7 +240,7 @@
             "Type": "AWS::EC2::SubnetRouteTableAssociation",
             "Properties": {
                 "RouteTableId": {
-                    "Ref": "PublicRouteTableAZ1"
+                    "Ref": "PublicRouteTable"
                 },
                 "SubnetId": {
                     "Ref": "PublicSubnet1"
@@ -272,7 +251,7 @@
             "Type": "AWS::EC2::SubnetRouteTableAssociation",
             "Properties": {
                 "RouteTableId": {
-                    "Ref": "PublicRouteTableAZ2"
+                    "Ref": "PublicRouteTable"
                 },
                 "SubnetId": {
                     "Ref": "PublicSubnet2"

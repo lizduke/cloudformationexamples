@@ -75,7 +75,12 @@
             "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
             "ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
         },
-        "PrivateRouteTableServiceVPC": {
+        "PrivateRouteTableAZ1ServiceVPC": {
+            "Description": "Route Table for Private Subnets in Service VPC",
+            "Type": "String",
+            "Default": "rtb-12345678"
+        },
+        "PrivateRouteTableAZ2ServiceVPC": {
             "Description": "Route Table for Private Subnets in Service VPC",
             "Type": "String",
             "Default": "rtb-12345678"
@@ -339,21 +344,35 @@
                 }
             }
         },
-        "PeeringRoute2ServicePrivatetoStandardAZ1": {
+        "PeeringRoute2ServicePrivatetoStandard": {
             "Type": "AWS::EC2::Route",
             "Properties": {
                 "DestinationCidrBlock": {
-                  "Ref": "PrivateSubnetCIDR1"
+                  "Ref": "VPCCIDRBlock"
                 },
                 "RouteTableId": {
-                    "Ref": "PrivateRouteTableServiceVPC"
+                    "Ref": "PrivateRouteTableAZ1ServiceVPC"
                 },
                 "VpcPeeringConnectionId": {
                     "Ref": "myVPCPeeringConnection"
                 }
             }
         },
-        "PeeringRoute3StandardtoServicePrivateAZ2": {
+        "PeeringRoute3ServicePrivatetoStandard": {
+            "Type": "AWS::EC2::Route",
+            "Properties": {
+                "DestinationCidrBlock": {
+                  "Ref": "VPCCIDRBlock"
+                },
+                "RouteTableId": {
+                    "Ref": "PrivateRouteTableAZ2ServiceVPC"
+                },
+                "VpcPeeringConnectionId": {
+                    "Ref": "myVPCPeeringConnection"
+                }
+            }
+        },
+        "PeeringRoute4StandardtoServicePrivateAZ2": {
             "Type": "AWS::EC2::Route",
             "Properties": {
                 "DestinationCidrBlock": {
@@ -367,25 +386,11 @@
                 }
             }
         },
-        "PeeringRoute4ServicePrivatetoStandardAZ2": {
-            "Type": "AWS::EC2::Route",
-            "Properties": {
-                "DestinationCidrBlock": {
-                  "Ref": "PrivateSubnetCIDR2"
-                },
-                "RouteTableId": {
-                    "Ref": "PrivateRouteTableServiceVPC"
-                },
-                "VpcPeeringConnectionId": {
-                    "Ref": "myVPCPeeringConnection"
-                }
-            }
-        },
         "PeeringRoute5ServicePublictoStandard": {
             "Type": "AWS::EC2::Route",
             "Properties": {
                 "DestinationCidrBlock": {
-                  "Ref": "PublicSubnetCIDR1"
+                  "Ref": "VPCCIDRBlock"
                 },
                 "RouteTableId": {
                     "Ref": "PublicRouteTableServiceVPC"
@@ -395,21 +400,7 @@
                 }
             }
         },
-        "PeeringRoute6ServicePublictoStandard": {
-            "Type": "AWS::EC2::Route",
-            "Properties": {
-                "DestinationCidrBlock": {
-                  "Ref": "PublicSubnetCIDR2"
-                },
-                "RouteTableId": {
-                    "Ref": "PublicRouteTableServiceVPC"
-                },
-                "VpcPeeringConnectionId": {
-                    "Ref": "myVPCPeeringConnection"
-                }
-            }
-        },
-        "PeeringRoute7StandardtoServicePublic": {
+        "PeeringRoute6StandardtoServicePublic": {
             "Type": "AWS::EC2::Route",
             "Properties": {
                 "DestinationCidrBlock": {
