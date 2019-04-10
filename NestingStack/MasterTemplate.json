@@ -58,6 +58,22 @@
     "StagePriCIDR2": {
     "Type" : "String",
     "Default" : "10.0.3.0/24"
+    },
+    "ProdPubCIDR1": {
+    "Type" : "String",
+    "Default" : "10.0.4.0/24"
+    },
+    "ProdPubCIDR2": {
+    "Type" : "String",
+    "Default" : "10.0.5.0/24"
+    },
+    "ProdPriCIDR1": {
+    "Type" : "String",
+    "Default" : "10.0.6.0/24"
+    },
+    "ProdPriCIDR2": {
+    "Type" : "String",
+    "Default" : "10.0.7.0/24"
     }
   },
     "Resources" : {
@@ -127,7 +143,44 @@
              "PublicRouteTableServiceVPC": { "Fn::GetAtt" : [ "EKSWorkshopServiceVPCStack", "Outputs.PublicRouteTable" ]}
              }
            }
-        }
+        },
+        "EKSWorkshopProdVPCStack" : {
+         "Type" : "AWS::CloudFormation::Stack",
+         "Properties" : {
+            "TemplateURL" : "https://s3-eu-west-1.amazonaws.com/cf-templates-eks-pipeline-workshop/VPC_Peered_Stage.json",
+              "TimeoutInMinutes" : "60",
+              "Parameters": {
+              "AZ1":{
+                "Ref" : "AZ1"
+                    },
+               "AZ2":{
+                 "Ref" : "AZ2"
+                     },
+              "VPCCIDRBlock" : {
+                "Ref" : "ProdVPCCIDR"
+                       },
+              "PublicSubnetCIDR1" : {
+                "Ref" : "ProdPubCIDR1"
+                       },
+              "PublicSubnetCIDR2" : {
+                "Ref" : "ProdPubCIDR2"
+                      },
+             "PrivateSubnetCIDR1" : {
+                "Ref" : "ProdPriCIDR1"
+                       },
+             "PrivateSubnetCIDR2" : {
+                 "Ref" : "ProdPriCIDR2"
+                       },
+              "MyServiceVPC" :{ "Fn::GetAtt" : [ "EKSWorkshopServiceVPCStack", "Outputs.StackVPC" ]},
+              "ServiceVPCCIDR": {
+                "Ref" : "ServiceVPCCIDR"
+              },
+              "PrivateRouteTableAZ1ServiceVPC": { "Fn::GetAtt" : [ "EKSWorkshopServiceVPCStack", "Outputs.PrivateRouteTableAZ1" ]},
+              "PrivateRouteTableAZ2ServiceVPC": { "Fn::GetAtt" : [ "EKSWorkshopServiceVPCStack", "Outputs.PrivateRouteTableAZ2" ]},
+              "PublicRouteTableServiceVPC": { "Fn::GetAtt" : [ "EKSWorkshopServiceVPCStack", "Outputs.PublicRouteTable" ]}
+              }
+            }
+         }
     },
     "Outputs": {
        "StackRef": {"Value": { "Ref" : "EKSWorkshopServiceVPCStack"}},
