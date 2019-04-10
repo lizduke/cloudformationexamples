@@ -2,58 +2,33 @@
     "AWSTemplateFormatVersion": "2010-09-09",
     "Description": "Builds a VPC with empty Public and Private Subnets.",
     "Parameters": {
+        "AZ1": {
+          "Description": "The first AZ defined by the user ",
+          "Type": "String"
+                },
+        "AZ2": {
+            "Description": "The second AZ defined by the user ",
+            "Type": "String"
+                },
         "VPCCIDRBlock": {
             "Description": " The IP address range used by the VPC.",
-            "Type": "String",
-            "MinLength": "9",
-            "MaxLength": "18",
-            "Default": "10.0.8.0/22",
-            "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
-            "ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+            "Type": "String"
         },
         "PublicSubnetCIDR1": {
             "Description": " Valid Subnet within the VPC CIDR Range to be used for Public Subnet",
-            "Type": "String",
-            "MinLength": "9",
-            "MaxLength": "18",
-            "Default": "10.0.8.0/24",
-            "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
-            "ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+            "Type": "String"
         },
         "PublicSubnetCIDR2": {
             "Description": " Valid Subnet within the VPC CIDR Range to be used for Public Subnet",
-            "Type": "String",
-            "MinLength": "9",
-            "MaxLength": "18",
-            "Default": "10.0.9.0/24",
-            "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
-            "ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+            "Type": "String"
         },
         "PrivateSubnetCIDR1": {
             "Description": " Valid Subnet within the VPC CIDR Range to be used for Private Subnet",
-            "Type": "String",
-            "MinLength": "9",
-            "MaxLength": "18",
-            "Default": "10.0.10.0/24",
-            "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
-            "ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+            "Type": "String"
         },
         "PrivateSubnetCIDR2": {
             "Description": " Valid Subnet within the VPC CIDR Range to be used for Private Subnet",
-            "Type": "String",
-            "MinLength": "9",
-            "MaxLength": "18",
-            "Default": "10.0.11.0/24",
-            "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
-            "ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
-        },
-        "AZ1":{
-         "Description":"The AZ for Public1 and Private1 Subnets",
-         "Type":"AWS::EC2::AvailabilityZone::Name"
-        },
-         "AZ2":{
-          "Description":"The AZ for Public2 and Private2 Subnets",
-          "Type":"AWS::EC2::AvailabilityZone::Name"
+            "Type": "String"
         },
         "DomainName": {
             "Description": " Valid DomainName to be used for DhcpOptions Set",
@@ -325,6 +300,27 @@
         "Export" : {
           "Name" : {"Fn::Sub": "${AWS::StackName}-VPCID" }
           }
-        }
+        },
+     "PublicRouteTable" : {
+       "Description" : "The Public Route Table ID of the Service VPC",
+       "Value" : { "Ref" : "PublicRouteTable" },
+       "Export" : {
+         "Name" : {"Fn::Sub": "${AWS::StackName}-PublicRTBle" }
+         }
+       },
+       "PrivateRouteTableAZ1" : {
+         "Description" : "The Private AZ1 Route Table ID of the Service VPC",
+         "Value" : { "Ref" : "PrivateRouteTableAZ1" },
+         "Export" : {
+           "Name" : {"Fn::Sub": "${AWS::StackName}-PrivateAZ1RTBle" }
+           }
+         },
+        "PrivateRouteTableAZ2" : {
+           "Description" : "The Private AZ2 Route Table ID of the Service VPC",
+           "Value" : { "Ref" : "PrivateRouteTableAZ2" },
+           "Export" : {
+             "Name" : {"Fn::Sub": "${AWS::StackName}-PrivateAZ2RTBle" }
+             }
+           }
       }
 }

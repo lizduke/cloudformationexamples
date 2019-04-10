@@ -1,0 +1,136 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "Nests VPC Creation Templates for EKS Workshop",
+    "Parameters": {
+    "AZ1":{
+     "Description":"The AZ for Public1 and Private1 Subnets",
+     "Type":"AWS::EC2::AvailabilityZone::Name"
+    },
+     "AZ2":{
+      "Description":"The AZ for Public2 and Private2 Subnets",
+      "Type":"AWS::EC2::AvailabilityZone::Name"
+    },
+    "KeyName": {
+        "Description": "Name of an EC2 KeyPair to enable SSH access to the instance.",
+        "Type": "AWS::EC2::KeyPair::KeyName",
+        "ConstraintDescription": "must be the name of an existing EC2 KeyPair."
+    },
+    "ServiceVPCCIDR": {
+    "Type" : "String",
+    "Default" : "10.0.8.0/22"
+    },
+    "ServicePubCIDR1": {
+    "Type" : "String",
+    "Default" : "10.0.8.0/24"
+    },
+    "ServicePubCIDR2": {
+    "Type" : "String",
+    "Default" : "10.0.9.0/24"
+    },
+    "ServicePriCIDR1": {
+    "Type" : "String",
+    "Default" : "10.0.10.0/24"
+    },
+    "ServicePriCIDR2": {
+    "Type" : "String",
+    "Default" : "10.0.11.0/24"
+    },
+    "StageVPCCIDR":{
+    "Type" : "String",
+    "Default" : "10.0.0.0/22"
+    },
+    "ProdVPCCIDR": {
+    "Type" : "String",
+    "Default" : "10.0.4.0/22"
+    },
+    "StagePubCIDR1": {
+    "Type" : "String",
+    "Default" : "10.0.0.0/24"
+    },
+    "StagePubCIDR2": {
+    "Type" : "String",
+    "Default" : "10.0.1.0/24"
+    },
+    "StagePriCIDR1": {
+    "Type" : "String",
+    "Default" : "10.0.2.0/24"
+    },
+    "StagePriCIDR2": {
+    "Type" : "String",
+    "Default" : "10.0.3.0/24"
+    }
+  },
+    "Resources" : {
+        "EKSWorkshopServiceVPCStack" : {
+	       "Type" : "AWS::CloudFormation::Stack",
+	       "Properties" : {
+	          "TemplateURL" : "https://s3-eu-west-1.amazonaws.com/cf-templates-eks-pipeline-workshop/VPC_Services.json",
+              "TimeoutInMinutes" : "60",
+              "Parameters": {
+              "AZ1":{
+                "Ref" : "AZ1"
+                    },
+               "AZ2":{
+                 "Ref" : "AZ2"
+              },
+              "VPCCIDRBlock" : {
+                "Ref" : "ServiceVPCCIDR"
+                       },
+              "PublicSubnetCIDR1" : {
+                "Ref" : "ServicePubCIDR1"
+                       },
+              "PublicSubnetCIDR2" : {
+                "Ref" : "ServicePubCIDR2"
+                      },
+             "PrivateSubnetCIDR1" : {
+                "Ref" : "ServicePriCIDR1"
+                       },
+             "PrivateSubnetCIDR2" : {
+                 "Ref" : "ServicePriCIDR2"
+                       }
+            }
+	       }
+       },
+       "EKSWorkshopStageVPCStack" : {
+        "Type" : "AWS::CloudFormation::Stack",
+        "Properties" : {
+           "TemplateURL" : "https://s3-eu-west-1.amazonaws.com/cf-templates-eks-pipeline-workshop/VPC_Peered_Stage.json",
+             "TimeoutInMinutes" : "60",
+             "Parameters": {
+             "AZ1":{
+               "Ref" : "AZ1"
+                   },
+              "AZ2":{
+                "Ref" : "AZ2"
+                    },
+             "VPCCIDRBlock" : {
+               "Ref" : "StageVPCCIDR"
+                      },
+             "PublicSubnetCIDR1" : {
+               "Ref" : "StagePubCIDR1"
+                      },
+             "PublicSubnetCIDR2" : {
+               "Ref" : "StagePubCIDR2"
+                     },
+            "PrivateSubnetCIDR1" : {
+               "Ref" : "StagePriCIDR1"
+                      },
+            "PrivateSubnetCIDR2" : {
+                "Ref" : "StagePriCIDR2"
+                      },
+             "MyServiceVPC" :{ "Fn::GetAtt" : [ "EKSWorkshopServiceVPCStack", "Outputs.StackVPC" ]},
+             "ServiceVPCCIDR": {
+               "Ref" : "ServiceVPCCIDR"
+             },
+             "PrivateRouteTableAZ1ServiceVPC": { "Fn::GetAtt" : [ "EKSWorkshopServiceVPCStack", "Outputs.PrivateRouteTableAZ1" ]},
+             "PrivateRouteTableAZ2ServiceVPC": { "Fn::GetAtt" : [ "EKSWorkshopServiceVPCStack", "Outputs.PrivateRouteTableAZ2" ]},
+             "PublicRouteTableServiceVPC": { "Fn::GetAtt" : [ "EKSWorkshopServiceVPCStack", "Outputs.PublicRouteTable" ]}
+             }
+           }
+        }
+    },
+    "Outputs": {
+       "StackRef": {"Value": { "Ref" : "EKSWorkshopServiceVPCStack"}},
+       "ServiceVPCID" :{"Value": { "Fn::GetAtt" : [ "EKSWorkshopServiceVPCStack", "Outputs.StackVPC" ] }}
+    }
+}

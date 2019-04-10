@@ -1,0 +1,455 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "Builds a VPC with an empty private subnet and a loadbalancer in a public subnet.",
+    "Parameters": {
+        "VPCCIDRBlock": {
+            "Description": " The IP address range used by the New VPC.",
+            "Type": "String"
+        },
+        "PublicSubnetCIDR1": {
+            "Description": " Valid Subnet within the New VPC CIDR Range to be used for Public Subnet",
+            "Type": "String"
+                  },
+      "PublicSubnetCIDR2": {
+            "Description": " Valid Subnet within the New VPC CIDR Range to be used for Public Subnet",
+            "Type": "String"
+        },
+        "PrivateSubnetCIDR1": {
+            "Description": " Valid Subnet within the New VPC CIDR Range to be used for Private Subnet",
+            "Type": "String"
+        },
+        "PrivateSubnetCIDR2": {
+            "Description": " Valid Subnet within the New VPC CIDR Range to be used for Private Subnet",
+            "Type": "String"
+        },
+        "MyServiceVPC": {
+            "Description": "VPC with some useful service tools",
+            "Type": "String"
+        },
+        "ServiceVPCCIDR": {
+            "Description": "CIDR of VPC with some useful service tools",
+            "Type": "String"
+        },
+        "PrivateRouteTableAZ1ServiceVPC": {
+            "Description": "Route Table for Private Subnets in Service VPC",
+            "Type": "String"
+        },
+        "PrivateRouteTableAZ2ServiceVPC": {
+            "Description": "Route Table for Private Subnets in Service VPC",
+            "Type": "String"
+        },
+        "PublicRouteTableServiceVPC": {
+            "Description": "Route Table for Public Subnets in Service VPC",
+            "Type": "String"
+        },
+        "AZ1": {
+          "Description": "The first AZ defined by the user ",
+          "Type": "String"
+                },
+        "AZ2": {
+            "Description": "The second AZ defined by the user ",
+            "Type": "String"
+                }
+     },
+    "Resources": {
+        "StandardVPC": {
+            "Type": "AWS::EC2::VPC",
+            "Properties": {
+                "EnableDnsSupport": "true",
+                "EnableDnsHostnames": "true",
+                "CidrBlock": {
+                  "Ref": "VPCCIDRBlock"
+                }
+            }
+        },
+        "PublicSubnet1": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "StandardVPC"
+                },
+                "AvailabilityZone":{
+                  "Ref":"AZ1"
+                  },
+                "CidrBlock": {
+                  "Ref": "PublicSubnetCIDR1"
+                }
+            }
+        },
+        "PublicSubnet2": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "StandardVPC"
+                },
+                "AvailabilityZone":{
+                  "Ref":"AZ2"
+                  },
+                "CidrBlock": {
+                  "Ref": "PublicSubnetCIDR2"
+                }
+            }
+        },
+        "PrivateSubnet1": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "StandardVPC"
+                },
+                "AvailabilityZone":{
+                  "Ref":"AZ1"
+                  },
+                "CidrBlock": {
+                  "Ref": "PrivateSubnetCIDR1"
+                }
+            }
+        },
+        "PrivateSubnet2": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "StandardVPC"
+                },
+                "AvailabilityZone":{
+                  "Ref":"AZ2"
+                  },
+                "CidrBlock": {
+                  "Ref": "PrivateSubnetCIDR2"
+                }
+            }
+        },
+        "InternetGateway": {
+            "Type": "AWS::EC2::InternetGateway",
+            "Properties": {}
+        },
+        "GatewayAttach": {
+            "Type": "AWS::EC2::VPCGatewayAttachment",
+            "Properties": {
+                "InternetGatewayId": {
+                    "Ref": "InternetGateway"
+                },
+                "VpcId": {
+                    "Ref": "StandardVPC"
+                }
+            }
+        },
+        "NATGatewayAZ1": {
+            "Type": "AWS::EC2::NatGateway",
+            "Properties": {
+                "AllocationId": {
+                    "Fn::GetAtt": [
+                        "EIP1",
+                        "AllocationId"
+                    ]
+                },
+                "SubnetId": {
+                    "Ref": "PublicSubnet1"
+                }
+            },
+            "DependsOn": [
+                "PublicRouteTable"
+            ]
+        },
+        "NATGatewayAZ2": {
+            "Type": "AWS::EC2::NatGateway",
+            "Properties": {
+                "AllocationId": {
+                    "Fn::GetAtt": [
+                        "EIP2",
+                        "AllocationId"
+                    ]
+                },
+                "SubnetId": {
+                    "Ref": "PublicSubnet2"
+                }
+            },
+            "DependsOn": [
+                "PublicRouteTable"
+            ]
+        },
+        "PvtRTAssocPS1": {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+                "RouteTableId": {
+                    "Ref": "PrivateRouteTableAZ1"
+                },
+                "SubnetId": {
+                    "Ref": "PrivateSubnet1"
+                }
+            }
+        },
+        "PvtRTAssocPS2": {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+                "RouteTableId": {
+                    "Ref": "PrivateRouteTableAZ2"
+                },
+                "SubnetId": {
+                    "Ref": "PrivateSubnet2"
+                }
+            }
+        },
+        "PublicRouteTable": {
+            "Type": "AWS::EC2::RouteTable",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "StandardVPC"
+                }
+            }
+        },
+        "PublicRoute": {
+            "Type": "AWS::EC2::Route",
+            "Properties": {
+                "DestinationCidrBlock": "0.0.0.0/0",
+                "RouteTableId": {
+                    "Ref": "PublicRouteTable"
+                },
+                "GatewayId": {
+                    "Ref": "InternetGateway"
+                }
+            }
+        },
+        "PubRTAssocPS1": {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+                "RouteTableId": {
+                    "Ref": "PublicRouteTable"
+                },
+                "SubnetId": {
+                    "Ref": "PublicSubnet1"
+                }
+            }
+        },
+        "PubRTAssocPS2": {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+                "RouteTableId": {
+                    "Ref": "PublicRouteTable"
+                },
+                "SubnetId": {
+                    "Ref": "PublicSubnet2"
+                }
+            }
+        },
+        "PrivateRouteTableAZ1": {
+            "Type": "AWS::EC2::RouteTable",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "StandardVPC"
+                }
+            }
+        },
+        "PrivateRouteTableAZ2": {
+          "Type": "AWS::EC2::RouteTable",
+          "Properties": {
+              "VpcId": {
+                  "Ref": "StandardVPC"
+              }
+          }
+          },
+        "PrivateRoute1": {
+            "Type": "AWS::EC2::Route",
+            "Properties": {
+                "RouteTableId": {
+                    "Ref": "PrivateRouteTableAZ1"
+                },
+                "DestinationCidrBlock": "0.0.0.0/0",
+                "NatGatewayId": {
+                    "Ref": "NATGatewayAZ1"
+                }
+            }
+          },
+        "PrivateRoute2": {
+            "Type": "AWS::EC2::Route",
+            "Properties": {
+                "RouteTableId": {
+                    "Ref": "PrivateRouteTableAZ2"
+                },
+                "DestinationCidrBlock": "0.0.0.0/0",
+                "NatGatewayId": {
+                    "Ref": "NATGatewayAZ2"
+                }
+            }
+          },
+        "myVPCPeeringConnection": {
+            "Type": "AWS::EC2::VPCPeeringConnection",
+            "Properties": {
+                "VpcId": {
+                    "Ref": "StandardVPC"
+                },
+                "PeerVpcId": {
+                    "Ref": "MyServiceVPC"
+                }
+            }
+        },
+        "PeeringRoute1StandardtoServicePrivateAZ1": {
+            "Type": "AWS::EC2::Route",
+            "Properties": {
+                "DestinationCidrBlock": {
+                  "Ref": "ServiceVPCCIDR"
+                },
+                "RouteTableId": {
+                    "Ref": "PrivateRouteTableAZ1"
+                },
+                "VpcPeeringConnectionId": {
+                    "Ref": "myVPCPeeringConnection"
+                }
+            }
+        },
+        "PeeringRoute2ServicePrivatetoStandard": {
+            "Type": "AWS::EC2::Route",
+            "Properties": {
+                "DestinationCidrBlock": {
+                  "Ref": "VPCCIDRBlock"
+                },
+                "RouteTableId": {
+                    "Ref": "PrivateRouteTableAZ1ServiceVPC"
+                },
+                "VpcPeeringConnectionId": {
+                    "Ref": "myVPCPeeringConnection"
+                }
+            }
+        },
+        "PeeringRoute3ServicePrivatetoStandard": {
+            "Type": "AWS::EC2::Route",
+            "Properties": {
+                "DestinationCidrBlock": {
+                  "Ref": "VPCCIDRBlock"
+                },
+                "RouteTableId": {
+                    "Ref": "PrivateRouteTableAZ2ServiceVPC"
+                },
+                "VpcPeeringConnectionId": {
+                    "Ref": "myVPCPeeringConnection"
+                }
+            }
+        },
+        "PeeringRoute4StandardtoServicePrivateAZ2": {
+            "Type": "AWS::EC2::Route",
+            "Properties": {
+                "DestinationCidrBlock": {
+                  "Ref": "ServiceVPCCIDR"
+                },
+                "RouteTableId": {
+                    "Ref": "PrivateRouteTableAZ2"
+                },
+                "VpcPeeringConnectionId": {
+                    "Ref": "myVPCPeeringConnection"
+                }
+            }
+        },
+        "PeeringRoute5ServicePublictoStandard": {
+            "Type": "AWS::EC2::Route",
+            "Properties": {
+                "DestinationCidrBlock": {
+                  "Ref": "VPCCIDRBlock"
+                },
+                "RouteTableId": {
+                    "Ref": "PublicRouteTableServiceVPC"
+                },
+                "VpcPeeringConnectionId": {
+                    "Ref": "myVPCPeeringConnection"
+                }
+            }
+        },
+        "PeeringRoute6StandardtoServicePublic": {
+            "Type": "AWS::EC2::Route",
+            "Properties": {
+                "DestinationCidrBlock": {
+                  "Ref": "ServiceVPCCIDR"
+                },
+                "RouteTableId": {
+                    "Ref": "PublicRouteTable"
+                },
+                "VpcPeeringConnectionId": {
+                    "Ref": "myVPCPeeringConnection"
+                }
+            }
+        },
+        "EIP1": {
+            "Type": "AWS::EC2::EIP",
+            "Properties": {
+                "Domain": "vpc"
+            }
+        },
+        "EIP2": {
+            "Type": "AWS::EC2::EIP",
+            "Properties": {
+                "Domain": "vpc"
+            }
+        },
+        "LoadBalancerSecurityGroup": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+                "GroupDescription": "Public Elastic Load Balancing security group with HTTP access on port 80 from the Internet",
+                "SecurityGroupIngress": [
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "80",
+                        "ToPort": "80",
+                        "CidrIp": "0.0.0.0/0"
+                    }
+                ],
+                "SecurityGroupEgress": [
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "0",
+                        "ToPort": "65535",
+                        "CidrIp": "0.0.0.0/0"
+                    }
+                ],
+                "VpcId": {
+                    "Ref": "StandardVPC"
+                }
+            }
+        },
+        "PublicELB": {
+            "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
+            "Properties": {
+                "Listeners": [
+                    {
+                        "LoadBalancerPort": "80",
+                        "InstancePort": "80",
+                        "Protocol": "HTTP"
+                    }
+                ],
+                "HealthCheck": {
+                    "Target": "HTTP:80/",
+                    "HealthyThreshold": "3",
+                    "UnhealthyThreshold": "5",
+                    "Interval": "90",
+                    "Timeout": "60"
+                },
+                "Subnets": [
+                    {
+                        "Ref": "PublicSubnet1"
+                    },
+                    {
+                        "Ref": "PublicSubnet2"
+                    },
+                ],
+                "SecurityGroups": [
+                    {
+                        "Ref": "LoadBalancerSecurityGroup"
+                    }
+                ]
+            }
+        }
+    },
+    "Outputs" : {
+      "StackVPC" : {
+        "Description" : "The ID of the VPC",
+        "Value" : { "Ref" : "StandardVPC" },
+        "Export" : {
+          "Name" : {"Fn::Sub": "${AWS::StackName}-VPCID" }
+          }
+        },
+        "PublicELB":{
+            "Description" : "The name of the public facing loadbalancer",
+            "Value" : { "Ref": "PublicELB"},
+            "Export" : {
+              "Name" : {"Fn::Sub": "${AWS::StackName}-PublicELB" }
+              }
+            }
+      }
+}
