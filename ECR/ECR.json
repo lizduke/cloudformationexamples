@@ -1,0 +1,46 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "Creates an ECR with Federated Role access",
+    "Parameters": {
+              "RepositoryName": {
+                "Description": " Name for the ECR Repository",
+                "Type": "String",
+                "Default": "testrepository",
+                "AllowedPattern": "[a-z0-9]+",
+                "ConstraintDescription": "must be a lowercase alphanumeric name and not match an existing repo in this account"
+              }
+    },
+    "Resources" : {
+              "MyRepository": {
+                "Type": "AWS::ECR::Repository",
+                "Properties": {
+                  "RepositoryName" : {
+                    "Ref": "RepositoryName"
+                  },
+                  "RepositoryPolicyText" : {
+                    "Version": "2008-10-17",
+                    "Statement": [
+                      {
+                        "Sid": "AllowPushPull",
+                        "Effect": "Allow",
+                        "Principal": {
+                          "AWS": [
+                            "arn:aws:sts::<accountID>:assumed-role/<federated role>/<federated user id>"
+                          ]
+                        },
+                        "Action": [
+                          "ecr:GetDownloadUrlForLayer",
+                          "ecr:BatchGetImage",
+                          "ecr:BatchCheckLayerAvailability",
+                          "ecr:PutImage",
+                          "ecr:InitiateLayerUpload",
+                          "ecr:UploadLayerPart",
+                          "ecr:CompleteLayerUpload"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+  }
+}
