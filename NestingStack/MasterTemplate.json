@@ -15,6 +15,11 @@
         "Type": "AWS::EC2::KeyPair::KeyName",
         "ConstraintDescription": "must be the name of an existing EC2 KeyPair."
     },
+    "PublicAccessCIDR": {
+      "Type": "String",
+      "Description": "CIDR block that will have access to AWS resources. Use http://checkip.amazonaws.com/ to get your current IP Address.",
+      "AllowedPattern": "\\d+\\.\\d+\\.\\d+\\.\\d+/\\d+"
+    },
     "ServiceVPCCIDR": {
     "Type" : "String",
     "Default" : "10.0.8.0/22"
@@ -180,10 +185,36 @@
               "PublicRouteTableServiceVPC": { "Fn::GetAtt" : [ "EKSWorkshopServiceVPCStack", "Outputs.PublicRouteTable" ]}
               }
             }
-         }
+         },
+         "EKSWorkshopJenkins" : {
+          "Type" : "AWS::CloudFormation::Stack",
+          "Properties" : {
+             "TemplateURL" : "https://s3-eu-west-1.amazonaws.com/cf-templates-eks-pipeline-workshop/ecs-jenkins.json",
+               "TimeoutInMinutes" : "60",
+               "Parameters": {
+               "AZ1":{
+                 "Ref" : "AZ1"
+                     },
+                "AZ2":{
+                  "Ref" : "AZ2"
+                      },
+                "KeyPair": {
+                  "Ref" : "KeyName"
+                },
+                "PublicAccessCIDR": {
+                  "Ref" : "PublicAccessCIDR"
+                },
+                "ServiceVPCID": { "Fn::GetAtt" : [ "EKSWorkshopServiceVPCStack", "Outputs.StackVPC" ]},
+                "ServicePubID1": { "Fn::GetAtt" : [ "EKSWorkshopServiceVPCStack", "Outputs.PublicSubnetAZ1" ]},
+                "ServicePubID2": { "Fn::GetAtt" : [ "EKSWorkshopServiceVPCStack", "Outputs.PublicSubnetAZ2" ]}
+               }
+             }
+          }
     },
     "Outputs": {
        "StackRef": {"Value": { "Ref" : "EKSWorkshopServiceVPCStack"}},
-       "ServiceVPCID" :{"Value": { "Fn::GetAtt" : [ "EKSWorkshopServiceVPCStack", "Outputs.StackVPC" ] }}
+       "ServiceVPCID" :{"Value": { "Fn::GetAtt" : [ "EKSWorkshopServiceVPCStack", "Outputs.StackVPC" ] }},
+       "PublicSubnetAZ1ServiceVPC":{"Value": { "Fn::GetAtt" : [ "EKSWorkshopServiceVPCStack", "Outputs.PublicSubnetAZ1" ]}},
+       "PublicSubnetAZ2ServiceVPC":{"Value": { "Fn::GetAtt" : [ "EKSWorkshopServiceVPCStack", "Outputs.PublicSubnetAZ2" ]}}
     }
 }

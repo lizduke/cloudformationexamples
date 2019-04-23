@@ -321,6 +321,20 @@
            "Export" : {
              "Name" : {"Fn::Sub": "${AWS::StackName}-PrivateAZ2RTBle" }
              }
-           }
+           },
+           "PublicSubnetAZ1" : {
+             "Description" : "The PublicSubnet ID for AZ1 of the Service VPC",
+             "Value" : { "Ref" : "PublicSubnet1" },
+             "Export" : {
+               "Name" : {"Fn::Sub": "${AWS::StackName}-PublicSubnetAZ1" }
+               }
+             },
+             "PublicSubnetAZ2" : {
+               "Description" : "The PublicSubnet ID for AZ2 of the Service VPC",
+               "Value" : { "Ref" : "PublicSubnet2" },
+               "Export" : {
+                 "Name" : {"Fn::Sub": "${AWS::StackName}-PublicSubnetAZ2" }
+                 }
+               },
       }
 }
