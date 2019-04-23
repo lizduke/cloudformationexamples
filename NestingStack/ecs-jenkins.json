@@ -524,7 +524,7 @@
             "Ref": "ServicePubID2"
           }
         ],
-        "Scheme": "external",
+        "Scheme": "internet-facing",
         "SecurityGroups": [
           {
             "Ref": "ECSClusterSecurityGroup"
