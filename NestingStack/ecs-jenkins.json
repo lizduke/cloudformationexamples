@@ -50,28 +50,31 @@
   "Mappings": {
     "RegionAmazonECSOptimizedAMIMapping": {
       "us-east-1": {
-        "AMI": "ami-52cd5445"
+        "AMI": "ami-0bc08634af113cccb"
       },
       "us-west-1": {
-        "AMI": "ami-efa1e28f"
+        "AMI": "ami-05cc68a00d392447a"
       },
       "us-west-2": {
-        "AMI": "ami-a426edc4"
+        "AMI": "ami-0054160a688deeb6a"
       },
       "eu-west-1": {
-        "AMI": "ami-7b244e08"
+        "AMI": "ami-09cd8db92c6bf3a84"
+      },
+      "eu-west-2": {
+        "AMI": "ami-016a20f0624bae8c5"
       },
       "eu-central-1": {
-        "AMI": "ami-721aec1d"
+        "AMI": "ami-0ab1db011871746ef"
       },
       "ap-northeast-1": {
-        "AMI": "ami-058a4964"
+        "AMI": "ami-00f839709b07ffb58"
       },
       "ap-southeast-1": {
-        "AMI": "ami-0d9f466e"
+        "AMI": "ami-0c5b69a05af2f0e23"
       },
       "ap-southeast-2": {
-        "AMI": "ami-7df2c61e"
+        "AMI": "ami-011ce3fbe73731dfe"
       }
     }
   },
