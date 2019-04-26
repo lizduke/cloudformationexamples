@@ -1,7 +1,7 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
     "Description": "Nests VPC Creation Templates for EKS Workshop",
-    "Parameters": {
+"Parameters": {
     "AZ1":{
      "Description":"The AZ for Public1 and Private1 Subnets",
      "Type":"AWS::EC2::AvailabilityZone::Name"
@@ -81,7 +81,7 @@
     "Default" : "10.0.7.0/24"
     }
   },
-    "Resources" : {
+"Resources" : {
         "EKSWorkshopServiceVPCStack" : {
 	       "Type" : "AWS::CloudFormation::Stack",
 	       "Properties" : {
@@ -109,9 +109,9 @@
              "PrivateSubnetCIDR2" : {
                  "Ref" : "ServicePriCIDR2"
                        }
-            }
-	       }
-       },
+                     }
+	                  }
+                  },
        "EKSWorkshopStageVPCStack" : {
         "Type" : "AWS::CloudFormation::Stack",
         "Properties" : {
@@ -146,9 +146,9 @@
              "PrivateRouteTableAZ1ServiceVPC": { "Fn::GetAtt" : [ "EKSWorkshopServiceVPCStack", "Outputs.PrivateRouteTableAZ1" ]},
              "PrivateRouteTableAZ2ServiceVPC": { "Fn::GetAtt" : [ "EKSWorkshopServiceVPCStack", "Outputs.PrivateRouteTableAZ2" ]},
              "PublicRouteTableServiceVPC": { "Fn::GetAtt" : [ "EKSWorkshopServiceVPCStack", "Outputs.PublicRouteTable" ]}
-             }
-           }
-        },
+              }
+            }
+          },
         "EKSWorkshopProdVPCStack" : {
          "Type" : "AWS::CloudFormation::Stack",
          "Properties" : {
@@ -185,30 +185,6 @@
               "PublicRouteTableServiceVPC": { "Fn::GetAtt" : [ "EKSWorkshopServiceVPCStack", "Outputs.PublicRouteTable" ]}
               }
             }
-         },
-         "EKSWorkshopJenkins" : {
-          "Type" : "AWS::CloudFormation::Stack",
-          "Properties" : {
-             "TemplateURL" : "https://s3-eu-west-1.amazonaws.com/cf-templates-eks-pipeline-workshop/ecs-jenkins.json",
-               "TimeoutInMinutes" : "60",
-               "Parameters": {
-               "AZ1":{
-                 "Ref" : "AZ1"
-                     },
-                "AZ2":{
-                  "Ref" : "AZ2"
-                      },
-                "KeyPair": {
-                  "Ref" : "KeyName"
-                },
-                "PublicAccessCIDR": {
-                  "Ref" : "PublicAccessCIDR"
-                },
-                "ServiceVPCID": { "Fn::GetAtt" : [ "EKSWorkshopServiceVPCStack", "Outputs.StackVPC" ]},
-                "ServicePubID1": { "Fn::GetAtt" : [ "EKSWorkshopServiceVPCStack", "Outputs.PublicSubnetAZ1" ]},
-                "ServicePubID2": { "Fn::GetAtt" : [ "EKSWorkshopServiceVPCStack", "Outputs.PublicSubnetAZ2" ]}
-               }
-             }
           }
     },
     "Outputs": {
