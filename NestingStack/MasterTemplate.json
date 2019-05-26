@@ -79,6 +79,20 @@
     "ProdPriCIDR2": {
     "Type" : "String",
     "Default" : "10.0.7.0/24"
+  },
+    "JenkinsClusterInstances": {
+    "Description": "How many ECS hosts do you want to initially deploy?",
+    "Type": "String",
+    "Default": 2
+    },
+    "JenkinsInstanceType": {
+    "Description": "Instances for the Jenkins ECS Cluster?",
+    "Type": "String",
+    "Default": "c4.large"
+    },
+    "ECSAMI" :{
+      "Type": "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>",
+    "Default": "/aws/service/ecs/optimized-ami/amazon-linux/recommended/image_id"
     }
   },
 "Resources" : {
@@ -185,12 +199,39 @@
               "PublicRouteTableServiceVPC": { "Fn::GetAtt" : [ "EKSWorkshopServiceVPCStack", "Outputs.PublicRouteTable" ]}
               }
             }
+          },
+          "EKSWorkshopJenkinsStack" :{
+            "Type" : "AWS::CloudFormation::Stack",
+            "Properties" : {
+              "TemplateURL" : "https://s3-eu-west-1.amazonaws.com/cf-templates-eks-pipeline-workshop/jenkins.json",
+                "TimeoutInMinutes" : "60",
+                "Parameters": {
+                    "InstanceType": {
+                        "Ref" : "JenkinsInstanceType"
+                      },
+                    "ClusterSize": {
+                        "Ref" : "JenkinsClusterInstances"
+                    },
+                    "Subnet1" :{ "Fn::GetAtt" : [ "EKSWorkshopServiceVPCStack", "Outputs.PrivateSubnetAZ1" ]},
+                    "Subnet2" :{ "Fn::GetAtt" : [ "EKSWorkshopServiceVPCStack", "Outputs.PrivateSubnetAZ2" ]},
+                    "ServiceVPCStack" :{ "Fn::GetAtt" : [ "EKSWorkshopServiceVPCStack", "Outputs.StackName" ]},
+                    "ServiceVPCID" :{"Fn::GetAtt" : [ "EKSWorkshopServiceVPCStack", "Outputs.StackVPC" ] },
+                    "PublicAccessCIDR": {
+                        "Ref": "PublicAccessCIDR"
+                    },
+                    "ECSAMI" :{
+                      "Ref" : "ECSAMI"
+                    }
+            }
           }
+      }
     },
     "Outputs": {
        "StackRef": {"Value": { "Ref" : "EKSWorkshopServiceVPCStack"}},
        "ServiceVPCID" :{"Value": { "Fn::GetAtt" : [ "EKSWorkshopServiceVPCStack", "Outputs.StackVPC" ] }},
        "PublicSubnetAZ1ServiceVPC":{"Value": { "Fn::GetAtt" : [ "EKSWorkshopServiceVPCStack", "Outputs.PublicSubnetAZ1" ]}},
-       "PublicSubnetAZ2ServiceVPC":{"Value": { "Fn::GetAtt" : [ "EKSWorkshopServiceVPCStack", "Outputs.PublicSubnetAZ2" ]}}
+       "PublicSubnetAZ2ServiceVPC":{"Value": { "Fn::GetAtt" : [ "EKSWorkshopServiceVPCStack", "Outputs.PublicSubnetAZ2" ]}},
+       "PrivateSubnetAZ1ServiceVPC":{"Value": { "Fn::GetAtt" : [ "EKSWorkshopServiceVPCStack", "Outputs.PrivateSubnetAZ1" ]}},
+       "PrivateSubnetAZ2ServiceVPC":{"Value": { "Fn::GetAtt" : [ "EKSWorkshopServiceVPCStack", "Outputs.PrivateSubnetAZ2" ]}}
     }
-}
+  }

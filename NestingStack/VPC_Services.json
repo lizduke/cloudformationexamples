@@ -294,6 +294,13 @@
 }
     },
     "Outputs" : {
+      "StackName" : {
+        "Description" : "The name of the ServiceStack",
+        "Value": {"Ref": "AWS::StackName" },
+        "Export" : {
+          "Name" : {"Ref": "AWS::StackName" }
+          }
+        },
       "StackVPC" : {
         "Description" : "The ID of the VPC",
         "Value" : { "Ref" : "StandardVPC" },
@@ -336,5 +343,19 @@
                  "Name" : {"Fn::Sub": "${AWS::StackName}-PublicSubnetAZ2" }
                  }
                },
+               "PrivateSubnetAZ1" : {
+                 "Description" : "The PrivateSubnet ID for AZ1 of the Service VPC",
+                 "Value" : { "Ref" : "PrivateSubnet1" },
+                 "Export" : {
+                   "Name" : {"Fn::Sub": "${AWS::StackName}-PrivateSubnetAZ1" }
+                   }
+                 },
+                 "PrivateSubnetAZ2" : {
+                   "Description" : "The PrivateSubnet ID for AZ2 of the Service VPC",
+                   "Value" : { "Ref" : "PrivateSubnet2" },
+                   "Export" : {
+                     "Name" : {"Fn::Sub": "${AWS::StackName}-PrivateSubnetAZ2" }
+                     }
+                }
       }
 }
