@@ -29,8 +29,7 @@
             },
         "ServiceVPCID": {
           "Description": "StackID of VPC with some useful service tools",
-          "Type" : "String",
-          "Description": "ID for Service VPC."
+          "Type" : "String"
           },
         "PublicAccessCIDR": {
           "Type": "String",
@@ -51,6 +50,10 @@
         "JenkinsImageTag": {
             "Description": "Specific Jenkins ImageId",
             "Type": "String"
+        },
+        "ECSHostSecurityGroup": {
+              "Description": "SecurityGroup for ECS Hosts",
+              "Type": "String"
         }
     },
     "Resources": {
@@ -123,7 +126,7 @@
                 },
                 "SecurityGroups": [
                     {
-                        "Ref": "ECSContainerInstancesSecurityGroup"
+                        "Ref": "ECSHostSecurityGroup"
                     }
                 ],
                 "IamInstanceProfile": {
@@ -302,25 +305,6 @@
                 }
             }
         },
-        "ECSContainerInstancesSecurityGroup": {
-          "Properties": {
-            "VpcId": {
-              "Ref": "ServiceVPCID"
-            },
-            "GroupDescription": "Security group for ECS container instances",
-            "SecurityGroupIngress": [
-              {
-                "IpProtocol": "tcp",
-                "FromPort": "22",
-                "ToPort": "22",
-                "CidrIp": {
-                  "Ref": "PublicAccessCIDR"
-                }
-              }
-            ]
-          },
-          "Type": "AWS::EC2::SecurityGroup"
-        },
         "EFSMountTargetSecurityGroup": {
           "Properties": {
             "VpcId": {
@@ -333,7 +317,7 @@
                 "FromPort": "2049",
                 "ToPort": "2049",
                 "SourceSecurityGroupId": {
-                  "Ref": "ECSContainerInstancesSecurityGroup"
+                  "Ref": "ECSHostSecurityGroup"
                 }
               }
             ]

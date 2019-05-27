@@ -299,7 +299,7 @@
         "VPC" : {"Ref" : "StandardVPC"}
         }
       }
-    } 
+    }
   },
     "Outputs" : {
       "StackName" : {
@@ -344,26 +344,30 @@
                "Name" : {"Fn::Sub": "${AWS::StackName}-PublicSubnetAZ1" }
                }
              },
-             "PublicSubnetAZ2" : {
-               "Description" : "The PublicSubnet ID for AZ2 of the Service VPC",
-               "Value" : { "Ref" : "PublicSubnet2" },
-               "Export" : {
-                 "Name" : {"Fn::Sub": "${AWS::StackName}-PublicSubnetAZ2" }
-                 }
-               },
-               "PrivateSubnetAZ1" : {
-                 "Description" : "The PrivateSubnet ID for AZ1 of the Service VPC",
-                 "Value" : { "Ref" : "PrivateSubnet1" },
-                 "Export" : {
-                   "Name" : {"Fn::Sub": "${AWS::StackName}-PrivateSubnetAZ1" }
-                   }
-                 },
-           "PrivateSubnetAZ2" : {
-             "Description" : "The PrivateSubnet ID for AZ2 of the Service VPC",
-             "Value" : { "Ref" : "PrivateSubnet2" },
-             "Export" : {
-               "Name" : {"Fn::Sub": "${AWS::StackName}-PrivateSubnetAZ2" }
-               }
+         "PublicSubnetAZ2" : {
+           "Description" : "The PublicSubnet ID for AZ2 of the Service VPC",
+           "Value" : { "Ref" : "PublicSubnet2" },
+           "Export" : {
+             "Name" : {"Fn::Sub": "${AWS::StackName}-PublicSubnetAZ2" }
+             }
+           },
+         "PrivateSubnetAZ1" : {
+           "Description" : "The PrivateSubnet ID for AZ1 of the Service VPC",
+           "Value" : { "Ref" : "PrivateSubnet1" },
+           "Export" : {
+             "Name" : {"Fn::Sub": "${AWS::StackName}-PrivateSubnetAZ1" }
+             }
+           },
+         "PrivateSubnetAZ2" : {
+           "Description" : "The PrivateSubnet ID for AZ2 of the Service VPC",
+           "Value" : { "Ref" : "PrivateSubnet2" },
+           "Export" : {
+             "Name" : {"Fn::Sub": "${AWS::StackName}-PrivateSubnetAZ2" }
+                }
+            },
+          "ECSHostSecurityGroup": {
+            "Description" : "The SecurityGroup for use with ECS Hosts",
+            "Value" : {"Fn::GetAtt" : [ "EKSWorkshopServiceSG", "Outputs.ECSHostSecurityGroup" ]}
           }
       }
 }

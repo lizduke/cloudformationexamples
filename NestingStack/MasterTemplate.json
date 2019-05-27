@@ -246,10 +246,11 @@
                     },
                     "JenkinsImageTag": {
                       "Ref": "JenkinsImageTag"
-                    }
-            }
-          }
-      }
+                    },
+                    "ECSHostSecurityGroup": {"Fn::GetAtt" : [ "EKSWorkshopServiceVPCStack", "Outputs.ECSHostSecurityGroup" ]}
+                  }
+                }
+        }
     },
     "Outputs": {
        "StackRef": {"Value": { "Ref" : "EKSWorkshopServiceVPCStack"}},
