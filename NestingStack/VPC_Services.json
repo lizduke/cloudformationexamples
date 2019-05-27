@@ -30,11 +30,10 @@
             "Description": " Valid Subnet within the VPC CIDR Range to be used for Private Subnet",
             "Type": "String"
         },
-        "DomainName": {
-            "Description": " Valid DomainName to be used for DhcpOptions Set",
-            "Type": "String",
-            "Default": "example.com"
-          }
+        "EnvironmentName": {
+            "Description": "An environment name that will be prefixed to resource names",
+            "Type": "String"
+        }
       },
     "Resources": {
         "StandardVPC": {
@@ -278,11 +277,7 @@
       "DhcpOptions" : {
          "Type" : "AWS::EC2::DHCPOptions",
          "Properties" : {
-            "DomainName" : {
-                "Ref": "DomainName"
-            },
-            "DomainNameServers" : [ "AmazonProvidedDNS" ],
-            "Tags" : [ { "Key" : "Name", "Value" : "Domain" } ]
+            "DomainNameServers" : [ "AmazonProvidedDNS" ]
          }
        },
   "VPCDHCPOptionsAssociation" : {
@@ -290,9 +285,22 @@
   "Properties" : {
     "VpcId" : {"Ref" : "StandardVPC"},
     "DhcpOptionsId" : {"Ref" : "DhcpOptions"}
-  }
-}
-    },
+            }
+          },
+  "EKSWorkshopServiceSG" : {
+   "Type" : "AWS::CloudFormation::Stack",
+   "Properties" : {
+      "TemplateURL" : "https://s3-eu-west-1.amazonaws.com/cf-templates-eks-pipeline-workshop/security-groups.json",
+        "TimeoutInMinutes" : "60",
+        "Parameters": {
+          "EnvironmentName": {
+                "Ref" : "EnvironmentName"
+              },
+        "VPC" : {"Ref" : "StandardVPC"}
+        }
+      }
+    } 
+  },
     "Outputs" : {
       "StackName" : {
         "Description" : "The name of the ServiceStack",
@@ -350,12 +358,12 @@
                    "Name" : {"Fn::Sub": "${AWS::StackName}-PrivateSubnetAZ1" }
                    }
                  },
-                 "PrivateSubnetAZ2" : {
-                   "Description" : "The PrivateSubnet ID for AZ2 of the Service VPC",
-                   "Value" : { "Ref" : "PrivateSubnet2" },
-                   "Export" : {
-                     "Name" : {"Fn::Sub": "${AWS::StackName}-PrivateSubnetAZ2" }
-                     }
-                }
+           "PrivateSubnetAZ2" : {
+             "Description" : "The PrivateSubnet ID for AZ2 of the Service VPC",
+             "Value" : { "Ref" : "PrivateSubnet2" },
+             "Export" : {
+               "Name" : {"Fn::Sub": "${AWS::StackName}-PrivateSubnetAZ2" }
+               }
+          }
       }
 }
