@@ -39,6 +39,18 @@
         "ECSAMI": {
             "Description": "ECS-Optimized AMI ID",
             "Type": "String"
+        },
+        "ECRAccount": {
+            "Description": "Account with public Jenkins Image",
+            "Type": "String"
+        },
+        "JenkinsRepo": {
+            "Description": "Publically Available Jenkins Repository",
+            "Type": "String"
+        },
+        "JenkinsImageTag": {
+            "Description": "Specific Jenkins ImageId",
+            "Type": "String"
         }
     },
     "Resources": {
@@ -372,6 +384,68 @@
             "SubnetId": {
               "Ref": "Subnet2"
             }
+          }
+        },
+        "JenkinsTaskDefinition": {
+          "Type": "AWS::ECS::TaskDefinition",
+          "Properties": {
+            "ContainerDefinitions": [
+              {
+                "Name": "jenkins",
+                "Image": {
+                          "Fn::Join": [
+                              "",
+                              [
+                                  {
+                                      "Ref": "ECRAccount"
+                                  },
+                                  ".dkr.ecr.eu-west-1.amazonaws.com/public/",
+                                  {
+                                      "Ref": "JenkinsRepo"
+                                  },
+                                  ":",
+                                  {
+                                      "Ref": "JenkinsImageTag"
+                                  }
+                              ]
+                          ]
+                      },
+                "Hostname": "jenkins",
+                "Cpu": 512,
+                "Memory": 512,
+                "Environment": [
+                  {
+                    "Name": "JAVA_OPTS",
+                    "Value": "-Djenkins.install.runSetupWizard=false"
+                  }
+                ],
+                "Essential": true,
+                "MountPoints": [
+                  {
+                    "ContainerPath": "/var/jenkins_home",
+                    "SourceVolume": "efs-jenkins"
+                  }
+                ],
+                "PortMappings": [
+                  {
+                    "HostPort": 8080,
+                    "ContainerPort": 8080
+                  },
+                  {
+                    "HostPort": 50000,
+                    "ContainerPort": 50000
+                  }
+                ]
+              }
+            ],
+            "Volumes": [
+              {
+                "Name": "efs-jenkins",
+                "Host": {
+                  "SourcePath": "/mnt/efs"
+                }
+              }
+            ]
           }
         }
     },

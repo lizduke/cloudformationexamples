@@ -93,6 +93,21 @@
     "ECSAMI" :{
       "Type": "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>",
     "Default": "/aws/service/ecs/optimized-ami/amazon-linux/recommended/image_id"
+    },
+    "JenkinsECRAccount": {
+       "Description": "Account with Jenkins ECR Repo",
+       "Type": "String",
+       "Default": "529555812612"
+    },
+    "JenkinsRepo": {
+        "Description": "Publicly available Jenkins Repo",
+        "Type": "String",
+        "Default": "jenkins-master"
+    },
+    "JenkinsImageTag": {
+      "Description": "Current Tested Jenkins Image",
+      "Type": "String",
+      "Default": "1.0"
     }
   },
 "Resources" : {
@@ -221,6 +236,15 @@
                     },
                     "ECSAMI" :{
                       "Ref" : "ECSAMI"
+                    },
+                    "ECRAccount": {
+                      "Ref": "JenkinsECRAccount"
+                    },
+                    "JenkinsRepo": {
+                      "Ref": "JenkinsRepo"
+                    },
+                    "JenkinsImageTag": {
+                      "Ref": "JenkinsImageTag"
                     }
             }
           }
