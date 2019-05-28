@@ -1,6 +1,6 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
-    "Description": "Builds a VPC with empty Public and Private Subnets.",
+    "Description": "Builds a VPC Public and Private Subnets, ALB and SG.",
     "Parameters": {
         "AZ1": {
           "Description": "The first AZ defined by the user ",
@@ -296,10 +296,26 @@
           "EnvironmentName": {
                 "Ref" : "EnvironmentName"
               },
-        "VPC" : {"Ref" : "StandardVPC"}
+          "VPC" : {"Ref" : "StandardVPC"}
         }
       }
-    }
+    },
+    "EKSWorkshopALB" : {
+     "Type" : "AWS::CloudFormation::Stack",
+     "Properties" : {
+        "TemplateURL" : "https://s3-eu-west-1.amazonaws.com/cf-templates-eks-pipeline-workshop/load-balancers.json",
+          "TimeoutInMinutes" : "60",
+          "Parameters": {
+            "EnvironmentName": {
+                  "Ref" : "EnvironmentName"
+                  },
+            "VPC" : {"Ref" : "StandardVPC"},
+            "Subnet1" : { "Ref" : "PublicSubnet1" },
+            "Subnet2" : {"Ref" : "PublicSubnet2" },
+            "SecurityGroup" : {"Fn::GetAtt" : [ "EKSWorkshopServiceSG", "Outputs.LoadBalancerSecurityGroup" ]}
+          }
+        }
+      }
   },
     "Outputs" : {
       "StackName" : {
@@ -368,6 +384,22 @@
           "ECSHostSecurityGroup": {
             "Description" : "The SecurityGroup for use with ECS Hosts",
             "Value" : {"Fn::GetAtt" : [ "EKSWorkshopServiceSG", "Outputs.ECSHostSecurityGroup" ]}
+          },
+          "LBSecurityGroup": {
+            "Description" : "The SecurityGroup for use with ECS Hosts",
+            "Value" : {"Fn::GetAtt" : [ "EKSWorkshopServiceSG", "Outputs.LoadBalancerSecurityGroup" ]}
+          },
+          "ServiceLB": {
+            "Description" : "The Service VPC LoadBalancer",
+            "Value" : {"Fn::GetAtt" : [ "EKSWorkshopALB", "Outputs.LoadBalancer" ]}
+          },
+          "ServiceLBURL": {
+            "Description" : "The Service VPC LoadBalancer URL",
+            "Value" : {"Fn::GetAtt" : [ "EKSWorkshopALB", "Outputs.LoadBalancerUrl" ]}
+          },
+          "ServiceLBListener": {
+            "Description" : "The Service VPC LoadBalancer port 80 listener",
+            "Value" : {"Fn::GetAtt" : [ "EKSWorkshopALB", "Outputs.Listener" ]}
           }
       }
 }

@@ -10,6 +10,10 @@
         "Description": "The second AZ defined by the user ",
         "Type": "String"
             },
+    "ServiceVPCStack": {
+        "Description": "StackID of VPC with some useful service tools",
+        "Type": "String"
+        },
     "InstanceType": {
       "Type": "String",
       "Description": "EC2 instance type",
@@ -104,7 +108,7 @@
           {
             "Key": "Name",
             "Value": {
-              "Ref": "AWS::StackName"
+              "Ref": "ServiceVPCStack"
             },
             "PropagateAtLaunch": true
           }
@@ -112,8 +116,8 @@
       },
       "UpdatePolicy": {
         "AutoScalingRollingUpdate": {
-          "MaxBatchSize": "1",
-          "MinInstancesInService": "1",
+          "MaxBatchSize": "0",
+          "MinInstancesInService": "0",
           "PauseTime": "PT5M",
           "WaitOnResourceSignals": "true"
         }
@@ -160,7 +164,7 @@
                 "/opt/aws/bin/cfn-init -v ",
                 "  --stack ",
                 {
-                  "Ref": "AWS::StackName"
+                  "Ref": "ServiceVPCStack"
                 },
                 "  --resource ECSLaunchConfig",
                 "  --region ",
@@ -188,7 +192,7 @@
                 "/opt/aws/bin/cfn-signal -e $? ",
                 "  --stack ",
                 {
-                  "Ref": "AWS::StackName"
+                  "Ref": "ServiceVPCStack"
                 },
                 "  --resource ECSAutoScalingGroup",
                 "  --region ",
