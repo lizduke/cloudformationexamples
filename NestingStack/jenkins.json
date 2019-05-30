@@ -54,6 +54,14 @@
         "ECSHostSecurityGroup": {
               "Description": "SecurityGroup for ECS Hosts",
               "Type": "String"
+        },
+        "TargetGroup": {
+              "Description": "Target Group for the ECS Service",
+              "Type": "String"
+        },
+        "DesiredCount": {
+              "Description": "How many copies of Jenkins to run",
+              "Type": "String"
         }
     },
     "Resources": {
@@ -230,7 +238,7 @@
                 "RoleName": {
                     "Fn::Sub": "${EnvironmentName}-ECSRole-${AWS::Region}"
                 },
-                "AssumeRolePolicyDocument": "{\n    \"Statement\": [{\n        \"Action\": \"sts:AssumeRole\",\n        \"Effect\": \"Allow\",\n        \"Principal\": {\n            \"Service\": \"ec2.amazonaws.com\"\n        }\n    }]\n}\n",
+                "AssumeRolePolicyDocument": "{\n    \"Statement\": [{\n        \"Action\": \"sts:AssumeRole\",\n        \"Effect\": \"Allow\",\n        \"Principal\": {\n            \"Service\": \"ecs.amazonaws.com\"\n        }\n    }]\n}\n",
                 "ManagedPolicyArns": [
                     "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM",
                     "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
@@ -239,6 +247,29 @@
                     {
                         "PolicyName": "ecs-service",
                         "PolicyDocument": "{\n    \"Statement\": [{\n        \"Effect\": \"Allow\",\n        \"Action\": [\n            \"ecs:CreateCluster\",\n            \"ecs:DeregisterContainerInstance\",\n            \"ecs:DiscoverPollEndpoint\",\n            \"ecs:Poll\",\n            \"ecs:RegisterContainerInstance\",\n            \"ecs:StartTelemetrySession\",\n            \"ecs:Submit*\",\n            \"ecr:BatchCheckLayerAvailability\",\n            \"ecr:BatchGetImage\",\n            \"ecr:GetDownloadUrlForLayer\",\n            \"ecr:GetAuthorizationToken\"\n        ],\n        \"Resource\": \"*\"\n    }]\n}\n"
+                    },
+                    {
+                      "PolicyName": "ecs-service-lb",
+                      "PolicyDocument": {
+                          "Version": "2012-10-17",
+                          "Statement": [
+                              {
+                                  "Effect": "Allow",
+                                  "Action": [
+                                      "ec2:AuthorizeSecurityGroupIngress",
+                                      "ec2:Describe*",
+                                      "elasticloadbalancing:DeregisterInstancesFromLoadBalancer",
+                                      "elasticloadbalancing:Describe*",
+                                      "elasticloadbalancing:RegisterInstancesWithLoadBalancer",
+                                      "elasticloadbalancing:DeregisterTargets",
+                                      "elasticloadbalancing:DescribeTargetGroups",
+                                      "elasticloadbalancing:DescribeTargetHealth",
+                                      "elasticloadbalancing:RegisterTargets"
+                                  ],
+                                  "Resource": "*"
+                              }
+                          ]
+                      }
                     }
                 ]
             }
@@ -369,6 +400,32 @@
               "Ref": "Subnet2"
             }
           }
+        },
+        "JenkinsService": {
+            "Type": "AWS::ECS::Service",
+            "Properties": {
+                "Cluster": {
+                    "Ref": "ECSCluster"
+                },
+                "Role": {
+                    "Ref": "ECSRole"
+                },
+                "DesiredCount": {
+                    "Ref": "DesiredCount"
+                },
+                "TaskDefinition": {
+                    "Ref": "JenkinsTaskDefinition"
+                },
+                "LoadBalancers": [
+                    {
+                        "ContainerName": "jenkins",
+                        "ContainerPort": 8080,
+                        "TargetGroupArn": {
+                            "Ref": "TargetGroup"
+                        }
+                    }
+                ]
+            }
         },
         "JenkinsTaskDefinition": {
           "Type": "AWS::ECS::TaskDefinition",

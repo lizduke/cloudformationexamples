@@ -108,6 +108,11 @@
       "Description": "Current Tested Jenkins Image",
       "Type": "String",
       "Default": "1.0"
+    },
+    "JenkinsMasterCount": {
+    "Description": "How many Jenkins Tasks do you want to deploy?",
+    "Type": "String",
+    "Default": 1
     }
   },
 "Resources" : {
@@ -115,7 +120,7 @@
 	       "Type" : "AWS::CloudFormation::Stack",
 	       "Properties" : {
 	          "TemplateURL" : "https://s3-eu-west-1.amazonaws.com/cf-templates-eks-pipeline-workshop/VPC_Services.json",
-              "TimeoutInMinutes" : "60",
+              "TimeoutInMinutes" : 60,
               "Parameters": {
               "AZ1":{
                 "Ref" : "AZ1"
@@ -146,7 +151,7 @@
         "Type" : "AWS::CloudFormation::Stack",
         "Properties" : {
            "TemplateURL" : "https://s3-eu-west-1.amazonaws.com/cf-templates-eks-pipeline-workshop/VPC_Peered_Stage.json",
-             "TimeoutInMinutes" : "60",
+             "TimeoutInMinutes" : 60,
              "Parameters": {
              "AZ1":{
                "Ref" : "AZ1"
@@ -183,7 +188,7 @@
          "Type" : "AWS::CloudFormation::Stack",
          "Properties" : {
             "TemplateURL" : "https://s3-eu-west-1.amazonaws.com/cf-templates-eks-pipeline-workshop/VPC_Peered_Stage.json",
-              "TimeoutInMinutes" : "60",
+              "TimeoutInMinutes" : 60,
               "Parameters": {
               "AZ1":{
                 "Ref" : "AZ1"
@@ -220,7 +225,7 @@
             "Type" : "AWS::CloudFormation::Stack",
             "Properties" : {
               "TemplateURL" : "https://s3-eu-west-1.amazonaws.com/cf-templates-eks-pipeline-workshop/jenkins.json",
-                "TimeoutInMinutes" : "60",
+                "TimeoutInMinutes" : 60,
                 "Parameters": {
                     "InstanceType": {
                         "Ref" : "JenkinsInstanceType"
@@ -247,7 +252,11 @@
                     "JenkinsImageTag": {
                       "Ref": "JenkinsImageTag"
                     },
-                    "ECSHostSecurityGroup": {"Fn::GetAtt" : [ "EKSWorkshopServiceVPCStack", "Outputs.ECSHostSecurityGroup" ]}
+                    "ECSHostSecurityGroup": {"Fn::GetAtt" : [ "EKSWorkshopServiceVPCStack", "Outputs.ECSHostSecurityGroup" ]},
+                    "TargetGroup": {"Fn::GetAtt" : [ "EKSWorkshopServiceVPCStack", "Outputs.ServiceLBTarget" ]},
+                    "DesiredCount": {
+                      "Ref": "JenkinsMasterCount"
+                    }
                   }
                 }
         }

@@ -33,14 +33,22 @@
         "EnvironmentName": {
             "Description": "An environment name that will be prefixed to resource names",
             "Type": "String"
-        }
+        },
+        "JenkinsHealthCheckPath": {
+            "Type": "String",
+            "Default": "/login"
+          },
+        "JenkinsHealthCheckPort": {
+            "Type": "String",
+            "Default": "8080"
+          }
       },
     "Resources": {
         "StandardVPC": {
             "Type": "AWS::EC2::VPC",
             "Properties": {
-                "EnableDnsSupport": "true",
-                "EnableDnsHostnames": "true",
+                "EnableDnsSupport": true,
+                "EnableDnsHostnames": true,
                 "CidrBlock": {
                   "Ref": "VPCCIDRBlock"
                 }
@@ -291,7 +299,7 @@
    "Type" : "AWS::CloudFormation::Stack",
    "Properties" : {
       "TemplateURL" : "https://s3-eu-west-1.amazonaws.com/cf-templates-eks-pipeline-workshop/security-groups.json",
-        "TimeoutInMinutes" : "60",
+        "TimeoutInMinutes" : 60,
         "Parameters": {
           "EnvironmentName": {
                 "Ref" : "EnvironmentName"
@@ -304,7 +312,7 @@
      "Type" : "AWS::CloudFormation::Stack",
      "Properties" : {
         "TemplateURL" : "https://s3-eu-west-1.amazonaws.com/cf-templates-eks-pipeline-workshop/load-balancers.json",
-          "TimeoutInMinutes" : "60",
+          "TimeoutInMinutes" : 60,
           "Parameters": {
             "EnvironmentName": {
                   "Ref" : "EnvironmentName"
@@ -312,7 +320,9 @@
             "VPC" : {"Ref" : "StandardVPC"},
             "Subnet1" : { "Ref" : "PublicSubnet1" },
             "Subnet2" : {"Ref" : "PublicSubnet2" },
-            "SecurityGroup" : {"Fn::GetAtt" : [ "EKSWorkshopServiceSG", "Outputs.LoadBalancerSecurityGroup" ]}
+            "SecurityGroup" : {"Fn::GetAtt" : [ "EKSWorkshopServiceSG", "Outputs.LoadBalancerSecurityGroup" ]},
+            "HealthCheckPath": {"Ref": "JenkinsHealthCheckPath"},
+            "HealthCheckPort": {"Ref": "JenkinsHealthCheckPort"}
           }
         }
       }
@@ -400,6 +410,10 @@
           "ServiceLBListener": {
             "Description" : "The Service VPC LoadBalancer port 80 listener",
             "Value" : {"Fn::GetAtt" : [ "EKSWorkshopALB", "Outputs.Listener" ]}
+          },
+          "ServiceLBTarget": {
+            "Description" : "The Service VPC LoadBalancer Target Group",
+            "Value" : {"Fn::GetAtt" : [ "EKSWorkshopALB", "Outputs.TargetGroup" ]}
           }
       }
 }

@@ -20,6 +20,14 @@
         "SecurityGroup": {
             "Description": "Select the Security Group to apply to the Application Load Balancer",
             "Type": "String"
+        },
+        "HealthCheckPath": {
+            "Description": "Add a path for the health check if required.",
+            "Type": "String"
+        },
+        "HealthCheckPort": {
+            "Description": "Add a port for the health check.",
+            "Type": "String"
         }
     },
     "Resources": {
@@ -74,8 +82,13 @@
                 "VpcId": {
                     "Ref": "VPC"
                 },
-                "Port": 80,
-                "Protocol": "HTTP"
+                "Port": {
+                    "Ref": "HealthCheckPort"
+                  },
+                "Protocol": "HTTP",
+                "HealthCheckPath" : {
+                    "Ref": "HealthCheckPath"
+                }
             }
         }
     },
@@ -100,6 +113,12 @@
             "Value": {
                 "Ref": "LoadBalancerListener"
             }
+        },
+        "TargetGroup":{
+            "Description": "A reference to the default Target group",
+            "Value": {
+              "Ref": "DefaultTargetGroup"
+          }
         }
     }
 }
