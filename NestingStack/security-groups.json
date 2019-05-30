@@ -6,8 +6,19 @@
             "Type": "String"
         },
         "VPC": {
-            "Type": "AWS::EC2::VPC::Id",
+            "Type": "String",
             "Description": "Choose which VPC the security groups should be deployed to"
+        },
+        "LoadBalancerCIDR": {
+            "Type": "String"
+        },
+        "ECSHostIngressPort": {
+            "Type": "String",
+            "Default": "8080"
+        },
+        "ECSLBIngressPort": {
+            "Type": "String",
+            "Default": "80"
         }
     },
     "Resources": {
@@ -23,7 +34,13 @@
                         "SourceSecurityGroupId": {
                             "Ref": "LoadBalancerSecurityGroup"
                         },
-                        "IpProtocol": -1
+                        "IpProtocol": "tcp",
+                        "FromPort": {
+                            "Ref": "ECSHostIngressPort"
+                        },
+                        "ToPort": {
+                            "Ref": "ECSHostIngressPort"
+                        }
                     }
                 ],
                 "Tags": [
@@ -45,8 +62,16 @@
                 "GroupDescription": "Access to the load balancer that sits in front of ECS",
                 "SecurityGroupIngress": [
                     {
-                        "CidrIp": "0.0.0.0/0",
-                        "IpProtocol": -1
+                        "CidrIp": {
+                            "Ref": "LoadBalancerCIDR"
+                            },
+                        "IpProtocol": "tcp",
+                        "FromPort": {
+                            "Ref": "ECSLBIngressPort"
+                        },
+                        "ToPort": {
+                            "Ref": "ECSLBIngressPort"
+                        }
                     }
                 ],
                 "Tags": [

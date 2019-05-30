@@ -41,7 +41,10 @@
         "JenkinsHealthCheckPort": {
             "Type": "String",
             "Default": "8080"
-          }
+          },
+        "LoadBalancerCIDR": {
+          "Type": "String"
+        }
       },
     "Resources": {
         "StandardVPC": {
@@ -304,7 +307,8 @@
           "EnvironmentName": {
                 "Ref" : "EnvironmentName"
               },
-          "VPC" : {"Ref" : "StandardVPC"}
+          "VPC" : {"Ref" : "StandardVPC"},
+          "LoadBalancerCIDR": {"Ref" : "LoadBalancerCIDR"}
         }
       }
     },

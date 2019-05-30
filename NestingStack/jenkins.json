@@ -31,10 +31,6 @@
           "Description": "StackID of VPC with some useful service tools",
           "Type" : "String"
           },
-        "PublicAccessCIDR": {
-          "Type": "String",
-          "Description": "CIDR block that will have access to AWS resources."
-        },
         "ECSAMI": {
             "Description": "ECS-Optimized AMI ID",
             "Type": "String"

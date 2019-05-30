@@ -1,7 +1,7 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
     "Description": "Nests VPC Creation Templates for EKS Workshop",
-"Parameters": {
+    "Parameters": {
     "AZ1":{
      "Description":"The AZ for Public1 and Private1 Subnets",
      "Type":"AWS::EC2::AvailabilityZone::Name"
@@ -17,7 +17,7 @@
     },
     "PublicAccessCIDR": {
       "Type": "String",
-      "Description": "CIDR block that will have access to AWS resources. Use http://checkip.amazonaws.com/ to get your current IP Address.",
+      "Description": "CIDR block that will have access to AWS public Loadbalancers. Use http://checkip.amazonaws.com/ to get your current IP Address.",
       "AllowedPattern": "\\d+\\.\\d+\\.\\d+\\.\\d+/\\d+"
     },
     "ServiceVPCCIDR": {
@@ -143,10 +143,13 @@
              "PrivateSubnetCIDR2" : {
                  "Ref" : "ServicePriCIDR2"
                       },
-             "EnvironmentName" : "Service"
-                     }
-	                  }
-                  },
+             "EnvironmentName" : "Service",
+              "LoadBalancerCIDR": {
+                    "Ref": "PublicAccessCIDR"
+                }
+	           }
+           }
+          },
        "EKSWorkshopStageVPCStack" : {
         "Type" : "AWS::CloudFormation::Stack",
         "Properties" : {
@@ -237,9 +240,6 @@
                     "Subnet2" :{ "Fn::GetAtt" : [ "EKSWorkshopServiceVPCStack", "Outputs.PrivateSubnetAZ2" ]},
                     "ServiceVPCStack" :{ "Fn::GetAtt" : [ "EKSWorkshopServiceVPCStack", "Outputs.StackName" ]},
                     "ServiceVPCID" :{"Fn::GetAtt" : [ "EKSWorkshopServiceVPCStack", "Outputs.StackVPC" ] },
-                    "PublicAccessCIDR": {
-                        "Ref": "PublicAccessCIDR"
-                    },
                     "ECSAMI" :{
                       "Ref" : "ECSAMI"
                     },
