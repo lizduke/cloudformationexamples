@@ -234,7 +234,7 @@
                 "RoleName": {
                     "Fn::Sub": "${EnvironmentName}-ECSRole-${AWS::Region}"
                 },
-                "AssumeRolePolicyDocument": "{\n    \"Statement\": [{\n        \"Action\": \"sts:AssumeRole\",\n        \"Effect\": \"Allow\",\n        \"Principal\": {\n            \"Service\": \"ecs.amazonaws.com\"\n        }\n    }]\n}\n",
+                "AssumeRolePolicyDocument": "{\n    \"Statement\": [{\n        \"Action\": \"sts:AssumeRole\",\n        \"Effect\": \"Allow\",\n        \"Principal\": {\n            \"Service\": \"ecs2.amazonaws.com\"\n        }\n    }]\n}\n",
                 "ManagedPolicyArns": [
                     "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM",
                     "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
