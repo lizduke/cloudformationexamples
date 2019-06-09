@@ -16,21 +16,21 @@
             "Type": "String"
         },
         "Subnet1": {
-          "Type" : "String",
-          "Description": "Pub subnet ID AZ1 for Service VPC."
+            "Type": "String",
+            "Description": "Pub subnet ID AZ1 for Service VPC."
         },
         "Subnet2": {
-          "Type" : "String",
-          "Description": "Pub subnet ID AZ2 for Service VPC."
+            "Type": "String",
+            "Description": "Pub subnet ID AZ2 for Service VPC."
         },
         "ServiceVPCStack": {
             "Description": "StackName of Service Stack with some useful service tools",
             "Type": "String"
-            },
+        },
         "ServiceVPCID": {
-          "Description": "StackID of VPC with some useful service tools",
-          "Type" : "String"
-          },
+            "Description": "StackID of VPC with some useful service tools",
+            "Type": "String"
+        },
         "ECSAMI": {
             "Description": "ECS-Optimized AMI ID",
             "Type": "String"
@@ -48,16 +48,16 @@
             "Type": "String"
         },
         "ECSHostSecurityGroup": {
-              "Description": "SecurityGroup for ECS Hosts",
-              "Type": "String"
+            "Description": "SecurityGroup for ECS Hosts",
+            "Type": "String"
         },
         "TargetGroup": {
-              "Description": "Target Group for the ECS Service",
-              "Type": "String"
+            "Description": "Target Group for the ECS Service",
+            "Type": "String"
         },
         "DesiredCount": {
-              "Description": "How many copies of Jenkins to run",
-              "Type": "String"
+            "Description": "How many copies of Jenkins to run",
+            "Type": "String"
         }
     },
     "Resources": {
@@ -74,7 +74,12 @@
             "Type": "AWS::AutoScaling::AutoScalingGroup",
             "Properties": {
                 "VPCZoneIdentifier": [
-                   { "Ref" : "Subnet1" }, {"Ref" : "Subnet2" }
+                    {
+                        "Ref": "Subnet1"
+                    },
+                    {
+                        "Ref": "Subnet2"
+                    }
                 ],
                 "LaunchConfigurationName": {
                     "Ref": "ECSLaunchConfiguration"
@@ -139,39 +144,41 @@
                 "UserData": {
                     "Fn::Base64": {
                         "Fn::Join": [
-                          "",
-                          [
-                            "Fn::Sub": "#!/bin/bash\nyum install -y https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.rpm\nyum install -y https://s3.amazonaws.com/amazoncloudwatch-agent/amazon_linux/amd64/latest/amazon-cloudwatch-agent.rpm\nyum install -y aws-cfn-bootstrap hibagent \n/opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource ECSLaunchConfiguration\n/opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource ECSAutoScalingGroup\n/usr/bin/enable-ec2-spot-hibernation\n",
-                            "\n",
-                            "echo ECS_CLUSTER=",
-                            {
-                              "Ref": "ECSCluster"
-                            },
-                            " >> /etc/ecs/ecs.config\n",
-                            "mkdir -p /mnt/efs\n",
-                            "aws_az=\"$(curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone)\"\n",
-                            "aws_region=\"${aws_az:0:${#aws_az}-1}\"\n",
-                            "echo \"${aws_az}.",
-                            {
-                              "Ref": "EFSFileSystem"
-                            },
-                            ".efs.${aws_region}.amazonaws.com:/    /mnt/efs   nfs4    defaults\" >> /etc/fstab\n",
-                            "mount -a\n",
-                            "chmod -R 777 /mnt/efs\n",
-                            "service docker restart\n",
-                            "start ecs\n",
-                            "/opt/aws/bin/cfn-signal -e $? ",
-                            "  --stack ",
-                            {
-                              "Ref": "ServiceVPCStack"
-                            },
-                            "  --resource ECSAutoScalingGroup",
-                            "  --region ",
-                            {
-                              "Ref": "AWS::Region"
-                            },
-                            "\n"
-                          ]
+                            "",
+                            [
+                                {
+                                    "Fn::Sub": "#!/bin/bash\nyum install -y https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.rpm\nyum install -y https://s3.amazonaws.com/amazoncloudwatch-agent/amazon_linux/amd64/latest/amazon-cloudwatch-agent.rpm\nyum install -y aws-cfn-bootstrap hibagent \n/opt/aws/bin/cfn-init -v --region ${AWS::Region} --stack ${AWS::StackName} --resource ECSLaunchConfiguration\n/opt/aws/bin/cfn-signal -e $? --region ${AWS::Region} --stack ${AWS::StackName} --resource ECSAutoScalingGroup\n/usr/bin/enable-ec2-spot-hibernation\n"
+                                },
+                                "\n",
+                                "echo ECS_CLUSTER=",
+                                {
+                                    "Ref": "ECSCluster"
+                                },
+                                " >> /etc/ecs/ecs.config\n",
+                                "mkdir -p /mnt/efs\n",
+                                "aws_az=\"$(curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone)\"\n",
+                                "aws_region=\"${aws_az:0:${#aws_az}-1}\"\n",
+                                "echo \"${aws_az}.",
+                                {
+                                    "Ref": "EFSFileSystem"
+                                },
+                                ".efs.${aws_region}.amazonaws.com:/    /mnt/efs   nfs4    defaults\" >> /etc/fstab\n",
+                                "mount -a\n",
+                                "chmod -R 777 /mnt/efs\n",
+                                "service docker restart\n",
+                                "start ecs\n",
+                                "/opt/aws/bin/cfn-signal -e $? ",
+                                "  --stack ",
+                                {
+                                    "Ref": "ServiceVPCStack"
+                                },
+                                "  --resource ECSAutoScalingGroup",
+                                "  --region ",
+                                {
+                                    "Ref": "AWS::Region"
+                                },
+                                "\n"
+                            ]
                         ]
                     }
                 }
@@ -234,7 +241,7 @@
                 "RoleName": {
                     "Fn::Sub": "${EnvironmentName}-ECSRole-${AWS::Region}"
                 },
-                "AssumeRolePolicyDocument": "{\n    \"Statement\": [{\n        \"Action\": \"sts:AssumeRole\",\n        \"Effect\": \"Allow\",\n        \"Principal\": {\n            \"Service\": \"ecs2.amazonaws.com\"\n        }\n    }]\n}\n",
+                "AssumeRolePolicyDocument": "{\n    \"Statement\": [{\n        \"Action\": \"sts:AssumeRole\",\n        \"Effect\": \"Allow\",\n        \"Principal\": {\n            \"Service\": \"ec2.amazonaws.com\"\n        }\n    }]\n}\n",
                 "ManagedPolicyArns": [
                     "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM",
                     "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
@@ -243,29 +250,6 @@
                     {
                         "PolicyName": "ecs-service",
                         "PolicyDocument": "{\n    \"Statement\": [{\n        \"Effect\": \"Allow\",\n        \"Action\": [\n            \"ecs:CreateCluster\",\n            \"ecs:DeregisterContainerInstance\",\n            \"ecs:DiscoverPollEndpoint\",\n            \"ecs:Poll\",\n            \"ecs:RegisterContainerInstance\",\n            \"ecs:StartTelemetrySession\",\n            \"ecs:Submit*\",\n            \"ecr:BatchCheckLayerAvailability\",\n            \"ecr:BatchGetImage\",\n            \"ecr:GetDownloadUrlForLayer\",\n            \"ecr:GetAuthorizationToken\"\n        ],\n        \"Resource\": \"*\"\n    }]\n}\n"
-                    },
-                    {
-                      "PolicyName": "ecs-service-lb",
-                      "PolicyDocument": {
-                          "Version": "2012-10-17",
-                          "Statement": [
-                              {
-                                  "Effect": "Allow",
-                                  "Action": [
-                                      "ec2:AuthorizeSecurityGroupIngress",
-                                      "ec2:Describe*",
-                                      "elasticloadbalancing:DeregisterInstancesFromLoadBalancer",
-                                      "elasticloadbalancing:Describe*",
-                                      "elasticloadbalancing:RegisterInstancesWithLoadBalancer",
-                                      "elasticloadbalancing:DeregisterTargets",
-                                      "elasticloadbalancing:DescribeTargetGroups",
-                                      "elasticloadbalancing:DescribeTargetHealth",
-                                      "elasticloadbalancing:RegisterTargets"
-                                  ],
-                                  "Resource": "*"
-                              }
-                          ]
-                      }
                     }
                 ]
             }
@@ -277,6 +261,43 @@
                 "Roles": [
                     {
                         "Ref": "ECSRole"
+                    }
+                ]
+            }
+        },
+        "ECSServiceRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "RoleName": {
+                    "Fn::Sub": "ecs-service-${AWS::StackName}"
+                },
+                "Path": "/",
+                "AssumeRolePolicyDocument": "{\n    \"Statement\": [{\n        \"Effect\": \"Allow\",\n        \"Principal\": { \"Service\": [ \"ecs.amazonaws.com\" ]},\n        \"Action\": [ \"sts:AssumeRole\" ]\n    }]\n}\n",
+                "Policies": [
+                    {
+                        "PolicyName": {
+                            "Fn::Sub": "ecs-service-${AWS::StackName}"
+                        },
+                        "PolicyDocument": {
+                            "Version": "2012-10-17",
+                            "Statement": [
+                                {
+                                    "Effect": "Allow",
+                                    "Action": [
+                                        "ec2:AuthorizeSecurityGroupIngress",
+                                        "ec2:Describe*",
+                                        "elasticloadbalancing:DeregisterInstancesFromLoadBalancer",
+                                        "elasticloadbalancing:Describe*",
+                                        "elasticloadbalancing:RegisterInstancesWithLoadBalancer",
+                                        "elasticloadbalancing:DeregisterTargets",
+                                        "elasticloadbalancing:DescribeTargetGroups",
+                                        "elasticloadbalancing:DescribeTargetHealth",
+                                        "elasticloadbalancing:RegisterTargets"
+                                    ],
+                                    "Resource": "*"
+                                }
+                            ]
+                        }
                     }
                 ]
             }
@@ -333,69 +354,69 @@
             }
         },
         "EFSMountTargetSecurityGroup": {
-          "Properties": {
-            "VpcId": {
-              "Ref": "ServiceVPCID"
+            "Properties": {
+                "VpcId": {
+                    "Ref": "ServiceVPCID"
+                },
+                "GroupDescription": "Security group to allow inbound NFS for EFS mount target from ECS container instances",
+                "SecurityGroupIngress": [
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "2049",
+                        "ToPort": "2049",
+                        "SourceSecurityGroupId": {
+                            "Ref": "ECSHostSecurityGroup"
+                        }
+                    }
+                ]
             },
-            "GroupDescription": "Security group to allow inbound NFS for EFS mount target from ECS container instances",
-            "SecurityGroupIngress": [
-              {
-                "IpProtocol": "tcp",
-                "FromPort": "2049",
-                "ToPort": "2049",
-                "SourceSecurityGroupId": {
-                  "Ref": "ECSHostSecurityGroup"
-                }
-              }
-            ]
-          },
-          "Type": "AWS::EC2::SecurityGroup"
+            "Type": "AWS::EC2::SecurityGroup"
         },
         "EFSFileSystem": {
-          "Type": "AWS::EFS::FileSystem",
-          "Properties": {
-            "FileSystemTags": [
-              {
-                "Key": "Name",
-                "Value": {
-                  "Ref": "ECSCluster"
-                }
-              }
-            ],
-            "PerformanceMode": "generalPurpose"
-          }
+            "Type": "AWS::EFS::FileSystem",
+            "Properties": {
+                "FileSystemTags": [
+                    {
+                        "Key": "Name",
+                        "Value": {
+                            "Ref": "ECSCluster"
+                        }
+                    }
+                ],
+                "PerformanceMode": "generalPurpose"
+            }
         },
         "EFSMountTarget1": {
-          "Type": "AWS::EFS::MountTarget",
-          "Properties": {
-            "FileSystemId": {
-              "Ref": "EFSFileSystem"
-            },
-            "SecurityGroups": [
-              {
-                "Ref": "EFSMountTargetSecurityGroup"
-              }
-            ],
-            "SubnetId": {
-              "Ref": "Subnet1"
+            "Type": "AWS::EFS::MountTarget",
+            "Properties": {
+                "FileSystemId": {
+                    "Ref": "EFSFileSystem"
+                },
+                "SecurityGroups": [
+                    {
+                        "Ref": "EFSMountTargetSecurityGroup"
+                    }
+                ],
+                "SubnetId": {
+                    "Ref": "Subnet1"
+                }
             }
-          }
         },
         "EFSMountTarget2": {
-          "Type": "AWS::EFS::MountTarget",
-          "Properties": {
-            "FileSystemId": {
-              "Ref": "EFSFileSystem"
-            },
-            "SecurityGroups": [
-              {
-                "Ref": "EFSMountTargetSecurityGroup"
-              }
-            ],
-            "SubnetId": {
-              "Ref": "Subnet2"
+            "Type": "AWS::EFS::MountTarget",
+            "Properties": {
+                "FileSystemId": {
+                    "Ref": "EFSFileSystem"
+                },
+                "SecurityGroups": [
+                    {
+                        "Ref": "EFSMountTargetSecurityGroup"
+                    }
+                ],
+                "SubnetId": {
+                    "Ref": "Subnet2"
+                }
             }
-          }
         },
         "JenkinsService": {
             "Type": "AWS::ECS::Service",
@@ -404,7 +425,7 @@
                     "Ref": "ECSCluster"
                 },
                 "Role": {
-                    "Ref": "ECSRole"
+                    "Ref": "ECSServiceRole"
                 },
                 "DesiredCount": {
                     "Ref": "DesiredCount"
@@ -424,66 +445,67 @@
             }
         },
         "JenkinsTaskDefinition": {
-          "Type": "AWS::ECS::TaskDefinition",
-          "Properties": {
-            "ContainerDefinitions": [
-              {
-                "Name": "jenkins",
-                "Image": {
-                          "Fn::Join": [
-                              "",
-                              [
-                                  {
-                                      "Ref": "ECRAccount"
-                                  },
-                                  ".dkr.ecr.eu-west-1.amazonaws.com/public/",
-                                  {
-                                      "Ref": "JenkinsRepo"
-                                  },
-                                  ":",
-                                  {
-                                      "Ref": "JenkinsImageTag"
-                                  }
-                              ]
-                          ]
-                      },
-                "Hostname": "jenkins",
-                "Cpu": 512,
-                "Memory": 512,
-                "Environment": [
-                  {
-                    "Name": "JAVA_OPTS",
-                    "Value": "-Djenkins.install.runSetupWizard=false"
-                  }
+            "Type": "AWS::ECS::TaskDefinition",
+            "Properties": {
+                "ContainerDefinitions": [
+                    {
+                        "Name": "jenkins",
+                        "Image": {
+                            "Fn::Join": [
+                                "",
+                                [
+                                    {
+                                        "Ref": "ECRAccount"
+                                    },
+                                    ".dkr.ecr.eu-west-1.amazonaws.com/public/",
+                                    {
+                                        "Ref": "JenkinsRepo"
+                                    },
+                                    ":",
+                                    {
+                                        "Ref": "JenkinsImageTag"
+                                    }
+                                ]
+                            ]
+                        },
+                        "Hostname": "jenkins",
+                        "Cpu": 512,
+                        "Memory": 512,
+                        "Environment": [
+                            {
+                                "Name": "JAVA_OPTS",
+                                "Value": "-Djenkins.install.runSetupWizard=false"
+                            }
+                        ],
+                        "Essential": true,
+                        "MountPoints": [
+                            {
+                                "ContainerPath": "/var/jenkins_home",
+                                "SourceVolume": "efs-jenkins",
+                                "ReadOnly": false
+                            }
+                        ],
+                        "PortMappings": [
+                            {
+                                "HostPort": 8080,
+                                "ContainerPort": 8080
+                            },
+                            {
+                                "HostPort": 50000,
+                                "ContainerPort": 50000
+                            }
+                        ]
+                    }
                 ],
-                "Essential": true,
-                "MountPoints": [
-                  {
-                    "ContainerPath": "/var/jenkins_home",
-                    "SourceVolume": "efs-jenkins"
-                  }
-                ],
-                "PortMappings": [
-                  {
-                    "HostPort": 8080,
-                    "ContainerPort": 8080
-                  },
-                  {
-                    "HostPort": 50000,
-                    "ContainerPort": 50000
-                  }
+                "Volumes": [
+                    {
+                        "Name": "efs-jenkins",
+                        "Host": {
+                            "SourcePath": "/mnt/efs"
+                        }
+                    }
                 ]
-              }
-            ],
-            "Volumes": [
-              {
-                "Name": "efs-jenkins",
-                "Host": {
-                  "SourcePath": "/mnt/efs"
-                }
-              }
-            ]
-          }
+            }
         }
     },
     "Outputs": {
